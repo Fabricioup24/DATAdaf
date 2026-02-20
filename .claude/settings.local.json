@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "Read(//c/MAS_TRABAJO/**)",
+      "Bash(dir)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

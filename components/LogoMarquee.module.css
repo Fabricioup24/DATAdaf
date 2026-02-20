@@ -1,0 +1,62 @@
+.marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 1rem 0;
+    /* Margen reducido y equilibrado */
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    /* Evitar que se comprima */
+}
+
+.marqueeContent {
+    display: inline-flex;
+}
+
+.marqueeGroup {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.logoItem {
+    display: flex;
+    align-items: center;
+    padding: 0 4rem;
+    height: 100px;
+    /* Reducido de 120px para ganar espacio vertical */
+}
+
+.logoImage {
+    height: 60px;
+    /* Reducido de 70px */
+    /* Altura uniforme para los logos */
+    width: auto;
+    max-width: 250px;
+    /* Reducido */
+    transition: all 0.3s ease;
+    object-fit: contain;
+}
+
+.logoItem:hover .logoImage {
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .marquee {
+        margin-top: 0 !important;
+        /* Sube el carrusel de logos */
+    }
+
+    .logoItem {
+        padding: 0 2rem;
+        height: 100px;
+    }
+
+    .logoImage {
+        height: 65px;
+        /* Aumentado de 50px para que se vean mejor */
+    }
+}

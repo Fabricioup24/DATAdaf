@@ -1,0 +1,202 @@
+.sceneOuterWrapper {
+    width: 100%;
+    position: relative;
+}
+
+.scene {
+    width: 100%;
+    height: 500px;
+    perspective: 3000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -5rem;
+    /* Subido para reducir espacio con títulos en escritorio */
+    overflow: visible;
+}
+
+.carousel {
+    position: relative;
+    width: 350px;
+    /* Ancho uniforme fijado */
+    height: 220px;
+    /* Alto uniforme fijado */
+    transform-style: preserve-3d;
+    cursor: grab;
+    transform: translateZ(-200px);
+    /* Movemos el carrusel un poco hacia adelante para compensar el radio */
+}
+
+.item {
+    position: absolute;
+    width: 350px;
+    height: 220px;
+    left: 0;
+    top: 0;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: rotateY(var(--item-angle)) translateZ(var(--item-translateZ));
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+        box-shadow 0.6s ease,
+        border-color 0.3s ease,
+        filter 0.3s ease;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    /* Evita selección de texto/imagen */
+    -webkit-user-drag: none;
+    /* Evita el arrastre nativo del navegador */
+}
+
+.carousel:hover .item {
+    filter: brightness(0.7);
+    /* Oscurece los demás cuando hay hover en el contenedor */
+}
+
+.item:hover {
+    transform: rotateY(var(--item-angle)) translateZ(calc(var(--item-translateZ) + 60px)) scale(1.15);
+    /* Sale hacia adelante y se agranda */
+    border-color: #0077ff;
+    z-index: 100 !important;
+    filter: brightness(1) !important;
+    /* Mantiene el brillo del item enfocado */
+    box-shadow: 0 0 45px rgba(0, 119, 255, 0.6), 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.imageWrapper {
+    width: 92%;
+    height: 92%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    /* Para que los gráficos se vean completos y uniformes */
+    transition: transform 0.6s ease;
+}
+
+.item:hover .image {
+    transform: scale(1.05);
+}
+
+/* Lightbox Styles */
+.lightbox {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 2000000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: zoom-out;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.lightboxContent {
+    position: relative;
+    width: 90vw;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    margin: auto;
+}
+
+.enlargedImage {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    background: transparent;
+}
+
+.closeButton {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #121212;
+    /* Color oscuro para que se vea sobre el fondo claro */
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+    z-index: 10001;
+}
+
+.closeButton:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .scene {
+        height: 320px;
+        /* Reducido para encuadrar en 100vh con texto */
+        margin-top: 0;
+    }
+
+    .carousel {
+        width: 300px;
+        height: 180px;
+        transform: translateZ(-500px);
+        /* Alejar para que el radio grande se vea contenido */
+    }
+
+    .item {
+        width: 300px;
+        height: 180px;
+    }
+
+    .closeButton {
+        top: -40px;
+        right: 0;
+    }
+}
