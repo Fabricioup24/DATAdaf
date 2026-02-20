@@ -26,7 +26,7 @@ export default function Home() {
       stars: '★★★★★',
       text: "La culminación de mi tesis doctoral fue posible gracias a un acompañamiento excepcional. El soporte brindado no solo garantizó una corrección de estilo pulcra y profesional, sino que fue determinante en la estructuración y ejecución metodológica, aportando la solidez técnica necesaria para mi grado en Negocios Globales.",
       author: "Ivan D.",
-      role: "Doctor en Negocios Globales"
+      role: "Doctor en Negocios Globales, Universidad Ricardo Palma"
     },
     {
       stars: '★★★★★',
@@ -285,13 +285,50 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Fabricio Urruchi - Portafolio</title>
-        <meta name="description" content="Portafolio de Fabricio Urruchi" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>DATAcore | Ciencia de Datos y Metodología</title>
+        <meta name="description" content="Equipo de científicos de datos especializados en estructurar, analizar y rentabilizar tu información. Optimizamos tesis y procesos empresariales con rigor técnico, web scraping y estadística avanzada." />
+        <meta name="keywords" content="ciencia de datos, tesis, metodologia, web scraping, estadistica, visualizacion de datos, DATAcore, consultoria de datos, arquitectura de datos" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charSet="utf-8" />
+
+        {/* Open Graph / Facebook / WhatsApp */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="DATAcore | Ciencia de Datos y Rigor Metodológico" />
+        <meta property="og:description" content="Transformamos datos complejos en decisiones estratégicas. Expertos en web scraping, datasets a medida y reportes interactivos." />
+        <meta property="og:site_name" content="DATAcore" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="DATAcore | Ciencia de Datos" />
+        <meta name="twitter:description" content="Expertos en estructurar y rentabilizar información para tesis y empresas." />
+
+        <link rel="icon" href="/DATAcore_favicon.png" />
         <link rel="dns-prefetch" href="https://www.linkedin.com" />
         <link rel="preconnect" href="https://www.linkedin.com" />
         <link rel="dns-prefetch" href="https://www.instagram.com" />
         <link rel="preconnect" href="https://www.instagram.com" />
+
+        {/* JSON-LD: Datos Estructurados para Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ConsultingService",
+              "name": "DATAcore",
+              "image": "https://fabricio-portfolio.vercel.app/DATAcore_favicon.png",
+              "description": "Equipo de científicos de datos especializados en diseñar y ejecutar arquitectura metodológica.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Lima",
+                "addressCountry": "PE"
+              },
+              "priceRange": "$$",
+              "areaServed": "Peru",
+              "url": "https://fabricio-portfolio.vercel.app/"
+            })
+          }}
+        />
       </Head>
 
       {showLobby && <Lobby onComplete={handleLobbyComplete} />}
@@ -355,7 +392,7 @@ export default function Home() {
                 <a href="/" className="signature-link" onClick={handleReload}>
                   <img
                     src="/graficos/datacoreblanco.png"
-                    alt="DATAcore Logo"
+                    alt="DATAcore Logo - Consultoría de Ciencia de Datos y Metodología"
                     className="header-logo"
                   />
                 </a>

@@ -12,14 +12,14 @@ const LogoMarquee = ({ scrollDirection, scrollVelocity }) => {
     const groupWidthRef = useRef(0);
 
     const logos = [
-        '/graficos/Banco-Mundial.webp',
-        '/graficos/BCRP.webp',
-        '/graficos/CEPALSTAT.webp',
-        '/graficos/FAOUN.webp',
-        '/graficos/INEI.webp',
-        '/graficos/JNE.webp',
-        '/graficos/OECD.webp',
-        '/graficos/portal_de_transparencia.webp'
+        { src: '/graficos/Banco-Mundial.webp', alt: 'Banco Mundial' },
+        { src: '/graficos/BCRP.webp', alt: 'Banco Central de Reserva del Perú (BCRP)' },
+        { src: '/graficos/CEPALSTAT.webp', alt: 'CEPALSTAT - Comisión Económica para América Latina y el Caribe' },
+        { src: '/graficos/FAOUN.webp', alt: 'FAO - Organización de las Naciones Unidas para la Alimentación y la Agricultura' },
+        { src: '/graficos/INEI.webp', alt: 'INEI - Instituto Nacional de Estadística e Informática' },
+        { src: '/graficos/JNE.webp', alt: 'JNE - Jurado Nacional de Elecciones' },
+        { src: '/graficos/OECD.webp', alt: 'OCDE - Organización para la Cooperación y el Desarrollo Económicos' },
+        { src: '/graficos/portal_de_transparencia.webp', alt: 'Portal de Transparencia Estándar Perú' }
     ];
 
     useEffect(() => {
@@ -104,7 +104,7 @@ const LogoMarquee = ({ scrollDirection, scrollVelocity }) => {
                     <div key={`group-${groupNum}`} className={styles.marqueeGroup}>
                         {logos.map((logo, index) => (
                             <div key={`logo-${groupNum}-${index}`} className={styles.logoItem}>
-                                <img src={logo} alt={`Logo ${index}`} className={styles.logoImage} />
+                                <img src={logo.src} alt={logo.alt} className={styles.logoImage} />
                             </div>
                         ))}
                     </div>

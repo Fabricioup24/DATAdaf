@@ -19,10 +19,17 @@ const CylinderCarousel = () => {
     }, []);
 
     const images = [
-        '/graficos/1.webp', '/graficos/2.webp', '/graficos/3.webp',
-        '/graficos/4.webp', '/graficos/5.webp', '/graficos/6.webp',
-        '/graficos/7.webp', '/graficos/8.webp', '/graficos/9.webp',
-        '/graficos/10.webp', '/graficos/11.webp',
+        { src: '/graficos/1.webp', alt: 'Dashboard de análisis demográfico interactivo' },
+        { src: '/graficos/2.webp', alt: 'Visualización de datos geoespaciales - Mapa de calor' },
+        { src: '/graficos/3.webp', alt: 'Gráfico de dispersión para análisis de correlación' },
+        { src: '/graficos/4.webp', alt: 'Reporte ejecutivo con indicadores KPI' },
+        { src: '/graficos/5.webp', alt: 'Diagrama de flujo de datos y procesos' },
+        { src: '/graficos/6.webp', alt: 'Visualización de redes complejas' },
+        { src: '/graficos/7.webp', alt: 'Análisis de series de tiempo financiero' },
+        { src: '/graficos/8.webp', alt: 'Infografía estadística para tesis' },
+        { src: '/graficos/9.webp', alt: 'Dashboard corporativo de ventas' },
+        { src: '/graficos/10.webp', alt: 'Modelado predictivo y visualización de machine learning' },
+        { src: '/graficos/11.webp', alt: 'Estructura de datos y arquitectura de información' },
     ];
 
     useEffect(() => {
@@ -176,7 +183,7 @@ const CylinderCarousel = () => {
             <div style={lightboxStyle} onClick={closeLightbox}>
                 <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
                     <button style={closeBtnStyle} onClick={closeLightbox}>&times;</button>
-                    <img src={selectedImage} alt="Gráfico" style={imageStyle} />
+                    <img src={selectedImage.src} alt={selectedImage.alt} style={imageStyle} />
                 </div>
             </div>,
             document.body
@@ -190,14 +197,14 @@ const CylinderCarousel = () => {
                     className={styles.carousel}
                     ref={containerRef}
                 >
-                    {images.map((src, index) => {
+                    {images.map((image, index) => {
                         const angle = (index / images.length) * 360;
                         const translateZ = typeof window !== 'undefined' && window.innerWidth < 768 ? 700 : 750;
                         return (
                             <div
                                 key={index}
                                 className={styles.item}
-                                onClick={() => handleImageClick(src)}
+                                onClick={() => handleImageClick(image)}
                                 style={{
                                     '--item-angle': `${angle}deg`,
                                     '--item-translateZ': `${translateZ}px`
@@ -205,8 +212,8 @@ const CylinderCarousel = () => {
                             >
                                 <div className={styles.imageWrapper}>
                                     <img
-                                        src={src}
-                                        alt={`Gráfico ${index + 1}`}
+                                        src={image.src}
+                                        alt={image.alt}
                                         className={styles.image}
                                         onDragStart={(e) => e.preventDefault()}
                                     />

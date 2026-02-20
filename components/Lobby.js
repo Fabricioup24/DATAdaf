@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 
 export default function Lobby({ onComplete }) {
-  const words = ['Hola', 'Hello', 'Olá', 'Ciao', 'Bonjour', ':)'];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const targetWord = "DATAcore";
+  const [displayText, setDisplayText] = useState("");
   const [showWave, setShowWave] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
@@ -12,51 +11,51 @@ export default function Lobby({ onComplete }) {
   }, [onComplete]);
 
   useEffect(() => {
-    if (currentWordIndex < words.length) {
-      // Iniciar fade out antes de cambiar la palabra
-      const fadeTimer = setTimeout(() => {
-        setFadeOut(true);
-      }, 300); // Fade out después de 300ms
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+    let iterations = 0;
+    let interval = null;
 
-      // Cambiar palabra después del fade out
-      const changeTimer = setTimeout(() => {
-        setFadeOut(false);
-        setCurrentWordIndex(currentWordIndex + 1);
-      }, 400); // Total 400ms entre palabras
+    // Efecto de Slot Machine / Decodificación
+    interval = setInterval(() => {
+      setDisplayText((prev) => {
+        return targetWord
+          .split("")
+          .map((letter, index) => {
+            if (index < iterations) {
+              return targetWord[index]; // Letra ya "ganada"
+            }
+            return chars[Math.floor(Math.random() * chars.length)]; // Letra girando
+          })
+          .join("");
+      });
 
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(changeTimer);
-      };
-    } else if (currentWordIndex === words.length) {
-      // Todas las palabras han aparecido, iniciar transición de ola
-      const waveTimer = setTimeout(() => {
-        setShowWave(true);
-      }, 300);
+      if (iterations >= targetWord.length) {
+        clearInterval(interval);
 
-      // Llamar onComplete justo cuando la ola está por terminar
-      const completeTimer = setTimeout(() => {
-        if (onCompleteRef.current) {
-          onCompleteRef.current();
-        }
-      }, 2100); // 300ms + 1800ms de la animación de ola
+        // Iniciar salida después de completar la palabra
+        setTimeout(() => {
+          setShowWave(true);
+        }, 800);
 
-      return () => {
-        clearTimeout(waveTimer);
-        clearTimeout(completeTimer);
-      };
-    }
-  }, [currentWordIndex, words.length]);
+        setTimeout(() => {
+          if (onCompleteRef.current) onCompleteRef.current();
+        }, 2600); // 800ms espera + 1800ms ola
+      }
+
+      // Velocidad del "giro" de las letras no resueltas
+      iterations += 1 / 3;
+    }, 50); // Velocidad del frame (ms)
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
       <div className={`lobby ${showWave ? 'wave-exit' : ''}`}>
         <div className="lobby-content">
-          {currentWordIndex > 0 && (
-            <h1 className={`lobby-word ${fadeOut ? 'fade-out' : ''}`}>
-              {words[currentWordIndex - 1]}
-            </h1>
-          )}
+          <h1 className="lobby-word">
+            {displayText}
+          </h1>
         </div>
       </div>
 
