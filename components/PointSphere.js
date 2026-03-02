@@ -15,7 +15,7 @@ const PointSphere = () => {
 
         // Configuración
         const dotCount = 1200;
-        const sphereRadius = Math.min(width, height) * 0.4;
+        let sphereRadius = Math.min(width, height) * 0.4;
         const dots = [];
 
         // Rotación
@@ -37,8 +37,10 @@ const PointSphere = () => {
         }
 
         const resize = () => {
+            if (!canvas.parentElement) return;
             width = canvas.parentElement.clientWidth;
             height = canvas.parentElement.clientHeight;
+            sphereRadius = Math.min(width, height) * 0.4;
             canvas.width = width * window.devicePixelRatio;
             canvas.height = height * window.devicePixelRatio;
             ctx.scale(window.devicePixelRatio, window.devicePixelRatio);

@@ -21,6 +21,8 @@ export default function Home() {
   const [showLobby, setShowLobby] = useState(true);
   const [showAboutMePage, setShowAboutMePage] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [, setModalClosing] = useState(false);
+  const [, setModalRevealing] = useState(false);
 
   const testimonials = [
     {
@@ -121,8 +123,6 @@ export default function Home() {
     setShowAboutMePage(true);
   };
 
-
-
   useEffect(() => {
     if (showLobby) return; // No inicializar scroll hasta que el lobby termine
 
@@ -130,8 +130,17 @@ export default function Home() {
     const scroll = new LocomotiveScroll({
       el: scrollRef.current,
       smooth: true,
-      tablet: { smooth: true },
-      smartphone: { smooth: true }
+      lerp: 0.08, // Reduce el número para hacerlo más suave
+      tablet: {
+        smooth: true,
+        lerp: 0.05,
+        multiplier: 0.8
+      },
+      smartphone: {
+        smooth: true,
+        lerp: 0.05,
+        multiplier: 0.8
+      }
     });
 
     // Guardar instancia en ref y window para uso externo

@@ -1,0 +1,29 @@
+
+> fabricio-portfolio@0.1.0 dev C:\FABRICIO_PORTAFOLIO
+> next dev "-p" "3000"
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 1816ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.5s (366 modules)
+ GET / 200 in 3760ms
+ GET / 200 in 40ms
+ GET / 200 in 41ms
+ GET / 200 in 29ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 582ms (366 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 639ms
+ GET / 200 in 65ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 52ms
+ ✓ Compiled in 281ms (366 modules)
+ ✓ Compiled in 449ms (366 modules)
+ ✓ Compiled in 228ms (366 modules)
+ ✓ Compiled in 294ms (366 modules)
+ GET / 200 in 38ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 733ms (366 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 500 in 2765ms
+ ELIFECYCLE  Command failed with exit code 3221225786.

@@ -3,7 +3,7 @@
     white-space: nowrap;
     box-sizing: border-box;
     width: 100%;
-    margin: 1rem 0;
+    margin: clamp(0.4rem, 1.2vw, 1rem) 0;
     /* Margen reducido y equilibrado */
     position: relative;
     z-index: 2;
@@ -24,17 +24,17 @@
 .logoItem {
     display: flex;
     align-items: center;
-    padding: 0 4rem;
-    height: 100px;
+    padding: 0 clamp(1rem, 3vw, 4rem);
+    height: clamp(70px, 7vw, 100px);
     /* Reducido de 120px para ganar espacio vertical */
 }
 
 .logoImage {
-    height: 60px;
+    height: clamp(42px, 4.2vw, 60px);
     /* Reducido de 70px */
     /* Altura uniforme para los logos */
     width: auto;
-    max-width: 250px;
+    max-width: clamp(140px, 18vw, 250px);
     /* Reducido */
     transition: all 0.3s ease;
     object-fit: contain;
@@ -51,12 +51,12 @@
     }
 
     .logoItem {
-        padding: 0 2rem;
-        height: 100px;
+        padding: 0 clamp(0.8rem, 4vw, 2rem);
+        height: clamp(72px, 18vw, 100px);
     }
 
     .logoImage {
-        height: 65px;
+        height: clamp(44px, 12vw, 65px);
         /* Aumentado de 50px para que se vean mejor */
     }
 }

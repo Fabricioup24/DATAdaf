@@ -5,12 +5,10 @@
     width: 100%;
     position: absolute;
     bottom: 0;
-    /* Al límite inferior del hero */
     left: 0;
     right: 0;
     z-index: 2;
     opacity: 0;
-    /* Oculto inicialmente */
 }
 
 .marqueeContent {
@@ -25,7 +23,7 @@
 .marqueeGroup .marqueeItem {
     display: flex;
     align-items: center;
-    padding-right: 4rem;
+    padding-right: clamp(1.2rem, 3vw, 4rem);
     white-space: nowrap;
 }
 
@@ -33,7 +31,7 @@
 .marqueeText {
     height: auto;
     width: auto;
-    font-size: 8vw;
+    font-size: clamp(2.2rem, 7.2vw, 8rem);
     font-weight: 700;
     display: inline-block;
     vertical-align: middle;
@@ -43,7 +41,7 @@
 }
 
 .marqueeContent .dash {
-    font-size: 10vw !important;
+    font-size: clamp(2.6rem, 9vw, 10rem) !important;
     font-weight: 700;
     display: inline-block;
     vertical-align: middle;
@@ -54,23 +52,21 @@
 @media (max-width: 768px) {
     .marquee {
         bottom: 2rem;
-        /* Subido para separarlo del borde inferior de la pantalla */
     }
 
     .marqueeGroup .marqueeItem {
-        padding-right: 2rem;
+        padding-right: clamp(0.8rem, 5vw, 2rem);
     }
 
     .marqueeText {
-        font-size: 2rem !important;
-        /* Tamaño fijo para asegurar estabilidad en el cálculo del ancho del loop */
+        font-size: clamp(1.4rem, 6.4vw, 2rem) !important;
     }
 
     .marqueeImage {
-        height: 15vw;
+        height: clamp(28px, 12vw, 56px);
     }
 
     .marqueeContent .dash {
-        font-size: 12vw !important;
+        font-size: clamp(1.8rem, 9vw, 3.5rem) !important;
     }
 }

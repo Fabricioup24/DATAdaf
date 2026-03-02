@@ -186,8 +186,8 @@
     .carousel {
         width: 300px;
         height: 180px;
-        transform: translateZ(-500px);
-        /* Alejar para que el radio grande se vea contenido */
+        transform: translateZ(-280px);
+        /* Ajuste para evitar que el carrusel quede demasiado lejano en mÃ³vil */
     }
 
     .item {
@@ -198,5 +198,23 @@
     .closeButton {
         top: -40px;
         right: 0;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+    .scene {
+        height: 420px;
+        margin-top: -1.8rem;
+    }
+
+    .carousel {
+        width: 320px;
+        height: 200px;
+        transform: translateZ(-240px);
+    }
+
+    .item {
+        width: 320px;
+        height: 200px;
     }
 }
