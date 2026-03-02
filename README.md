@@ -1,3 +1,4 @@
+HEAD
 
 
 # Portafolio Personal de Fabricio Urruchi
@@ -148,3 +149,5 @@ Se completó una fase intensiva de pulido estético y funcional, enfocada en la 
 - `components/DataOrderAnimation.js` - Ajuste de paleta de colores para alineación con el branding (Deep Blue).
 
 ---
+# DATAdaf
+ a7b4c9c114cd4ec15e014a1e81fc071eef2cdebe
