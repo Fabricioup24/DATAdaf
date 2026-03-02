@@ -87,8 +87,9 @@ export default function HeroAnimation({ isLight = false, showGradient = true, sh
         };
 
         const handleMouseMove = (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
         };
 
         const handleMouseLeave = () => {

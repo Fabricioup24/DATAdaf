@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 
 export default function Lobby({ onComplete }) {
-  const targetWord = "DATAcore";
+  const targetWord = "DATAdaf";
   const [displayText, setDisplayText] = useState("");
   const [showWave, setShowWave] = useState(false);
   const onCompleteRef = useRef(onComplete);
@@ -61,10 +61,12 @@ export default function Lobby({ onComplete }) {
 
       {/* Wave reveal overlay */}
       <div className={`lobby-wave-reveal ${showWave ? 'active' : ''}`}>
-        <svg className="wave-reveal-svg" viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <svg className="wave-reveal-svg" viewBox="0 0 1440 152" preserveAspectRatio="none">
           <path
             fill="#121212"
-            d="M0,120 L0,60 Q360,0 720,60 T1440,60 L1440,120 Z"
+            stroke="#121212"
+            strokeWidth="2"
+            d="M-10,152 L-10,60 Q360,0 720,60 T1450,60 L1450,152 Z"
           />
         </svg>
       </div>

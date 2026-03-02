@@ -11,6 +11,7 @@ import CylinderCarousel from '../components/CylinderCarousel';
 import HeroAnimation from '../components/HeroAnimation';
 import ScrapingAnimation from '../components/ScrapingAnimation';
 import DataOrderAnimation from '../components/DataOrderAnimation';
+import PointSphere from '../components/PointSphere';
 
 export default function Home() {
   const scrollRef = useRef(null);
@@ -30,19 +31,19 @@ export default function Home() {
     },
     {
       stars: '★★★★★',
-      text: "Gracias a DATAcore, logré materializar el diseño de investigación que tenía proyectado para mi tesis de licenciatura. Pude realizar la detección de rejas viales en toda Lima Metropolitana utilizando el modelo YOLO26 y técnicas de visión artificial. Recomiendo ampliamente a DATAcore porque su enfoque logra trascender las metodologías tradicionales.",
+      text: "Gracias a DATAdaf, logré materializar el diseño de investigación que tenía proyectado para mi tesis de licenciatura. Pude realizar la detección de rejas viales en toda Lima Metropolitana utilizando el modelo YOLO26 y técnicas de visión artificial. Recomiendo ampliamente a DATAdaf porque su enfoque logra trascender las metodologías tradicionales.",
       author: "Antonio U.",
       role: "Bachiller en Ciencias Políticas por la UPC"
     },
     {
       stars: '★★★★★',
-      text: "El año pasado quise trabajar en un proyecto personal orientado a la visualización de datos de corte transversal y me sirvió mucho la ayuda con los gráficos, la codificación y sus buenas prácticas. Recomiendo DATAcore a todo aquel que esté interesado en el mundo de los datos.",
+      text: "El año pasado quise trabajar en un proyecto personal orientado a la visualización de datos de corte transversal y me sirvió mucho la ayuda con los gráficos, la codificación y sus buenas prácticas. Recomiendo DATAdaf a todo aquel que esté interesado en el mundo de los datos.",
       author: "Mia T.",
       role: "B.S. in Political Science, Universidad de Arizona"
     },
     {
       stars: '★★★★★',
-      text: "Trabajé con DATAcore para aterrizar el análisis de datos de un proyecto inmobiliario y los resultados cumplieron totalmente mis expectativas. Me ayudaron a organizar variables complejas y a traducirlas en una infografía técnica clara, resolviendo dudas puntuales sobre el procesamiento de la información. Es una opción práctica y profesional para quienes necesitan rigor en la visualización de datos aplicados a la arquitectura.",
+      text: "Trabajé con DATAdaf para aterrizar el análisis de datos de un proyecto inmobiliario y los resultados cumplieron totalmente mis expectativas. Me ayudaron a organizar variables complejas y a traducirlas en una infografía técnica clara, resolviendo dudas puntuales sobre el procesamiento de la información. Es una opción práctica y profesional para quienes necesitan rigor en la visualización de datos aplicados a la arquitectura.",
       author: "Jimena T.",
       role: "Estudiante de arquitectura, Universidad de Lima"
     }
@@ -246,11 +247,26 @@ export default function Home() {
       projectsObserver.observe(projectsSection);
     }
 
+    // Observer para #services-2: dispara en cuanto la sección asoma en el viewport
+    const services2Section = document.querySelector('#services-2');
+    const services2Observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('cards-visible');
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px' });
+
+    if (services2Section) {
+      services2Observer.observe(services2Section);
+    }
+
     return () => {
       resizeObserver.disconnect();
       if (scroll) scroll.destroy();
       if (aboutContent) observer.unobserve(aboutContent);
       if (projectsSection) projectsObserver.unobserve(projectsSection);
+      if (services2Section) services2Observer.unobserve(services2Section);
     };
   }, [showLobby]);
 
@@ -285,24 +301,24 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>DATAcore | Ciencia de Datos y Metodología</title>
+        <title>DATAdaf | Ciencia de Datos y Metodología</title>
         <meta name="description" content="Equipo de científicos de datos especializados en estructurar, analizar y rentabilizar tu información. Optimizamos tesis y procesos empresariales con rigor técnico, web scraping y estadística avanzada." />
-        <meta name="keywords" content="ciencia de datos, tesis, metodologia, web scraping, estadistica, visualizacion de datos, DATAcore, consultoria de datos, arquitectura de datos" />
+        <meta name="keywords" content="ciencia de datos, tesis, metodologia, web scraping, estadistica, visualizacion de datos, DATAdaf, consultoria de datos, arquitectura de datos" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta charSet="utf-8" />
 
         {/* Open Graph / Facebook / WhatsApp */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="DATAcore | Ciencia de Datos y Rigor Metodológico" />
+        <meta property="og:title" content="DATAdaf | Ciencia de Datos y Rigor Metodológico" />
         <meta property="og:description" content="Transformamos datos complejos en decisiones estratégicas. Expertos en web scraping, datasets a medida y reportes interactivos." />
-        <meta property="og:site_name" content="DATAcore" />
+        <meta property="og:site_name" content="DATAdaf" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="DATAcore | Ciencia de Datos" />
+        <meta name="twitter:title" content="DATAdaf | Ciencia de Datos" />
         <meta name="twitter:description" content="Expertos en estructurar y rentabilizar información para tesis y empresas." />
 
-        <link rel="icon" href="/DATAcore_favicon.png" />
+        <link rel="icon" href="/favicomdata.svg" />
         <link rel="dns-prefetch" href="https://www.linkedin.com" />
         <link rel="preconnect" href="https://www.linkedin.com" />
         <link rel="dns-prefetch" href="https://www.instagram.com" />
@@ -315,8 +331,8 @@ export default function Home() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ConsultingService",
-              "name": "DATAcore",
-              "image": "https://fabricio-portfolio.vercel.app/DATAcore_favicon.png",
+              "name": "DATAdaf",
+              "image": "https://fabricio-portfolio.vercel.app/favicomdata.svg",
               "description": "Equipo de científicos de datos especializados en diseñar y ejecutar arquitectura metodológica.",
               "address": {
                 "@type": "PostalAddress",
@@ -391,8 +407,8 @@ export default function Home() {
               <div className="header-signature">
                 <a href="/" className="signature-link" onClick={handleReload}>
                   <img
-                    src="/graficos/datacoreblanco.png"
-                    alt="DATAcore Logo - Consultoría de Ciencia de Datos y Metodología"
+                    src="/graficos/datadafblanco.png"
+                    alt="DATAdaf Logo - Consultoría de Ciencia de Datos y Metodología"
                     className="header-logo"
                   />
                 </a>
@@ -428,7 +444,7 @@ export default function Home() {
                 No te quedes atrás, transformamos datos complejos en <span className="highlight">rigor metodológico y decisiones estratégicas</span>
               </a>
               <p className="about-description">
-                En DATAcore somos un equipo de científicos de datos listos para estructurar, analizar y rentabilizar tu información. No importa si necesitas blindar la metodología de tu tesis de pregrado, maestría o doctorado, o si buscas optimizar los procesos de tu empresa: le damos a tu proyecto el respaldo técnico que la realidad exige.
+                En DATAdaf somos un equipo de científicos de datos listos para estructurar, analizar y rentabilizar tu información. No importa si necesitas blindar la metodología de tu tesis de pregrado, maestría o doctorado, o si buscas optimizar los procesos de tu empresa: le damos a tu proyecto el respaldo técnico que la realidad exige.
               </p>
               <p className="about-description">
                 Nos encargamos del trabajo pesado. Dominamos la extracción masiva de datos con web scraping, construimos datasets a medida, aplicamos estadística avanzada y diseñamos reportes visuales.
@@ -437,45 +453,118 @@ export default function Home() {
                 Tú pones el objetivo. Nosotros construimos la arquitectura de datos para que lo alcances con seguridad y precisión.
               </p>
             </div>
+            <div className="point-sphere-wrapper">
+              <PointSphere />
+            </div>
           </section>
 
+          {/* ── Metodologías · Parte 1/2 ── */}
           <section id="services" data-scroll-section>
-            {/* Animación de fondo idéntica al Hero */}
             <div className="services-bg-animation">
               <HeroAnimation showShadow={false} />
-              {/* Gradiente sutil para asegurar legibilidad del texto */}
               <div className="animation-overlay-gradient"></div>
             </div>
 
             <div className="services-container">
-              <h2 className="section-title">Metodologías</h2>
-              <p className="section-subtitle">Herramientas analíticas de vanguardia para el rigor científico.</p>
+              <div className="met-header">
+                <h2 className="section-title">Metodologías</h2>
+                <p className="section-subtitle">Herramientas analíticas de vanguardia para el rigor científico.</p>
+              </div>
 
-              <div className="services-grid">
-                <div className="service-item">
-                  <h3>Modelos VAR</h3>
-                  <p>Vectores Autorregresivos para el análisis de interdependencias múltiples en series de tiempo dinámicas.</p>
+              <div className="metodologias-grid">
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Diseño de Estudios e Inferencia Causal</h3>
+                  <ul className="metodologia-lista">
+                    <li>Diseños experimentales y cuasi-experimentales (Grupos de control, aleatorización y grupos intactos)</li>
+                    <li>Diseños observacionales y longitudinales (Transversales, trend, cohortes y panel)</li>
+                    <li>Diseños ex post facto y análisis causal-comparativo</li>
+                    <li>Análisis de series de tiempo interrumpidas (Evaluación de impacto)</li>
+                  </ul>
                 </div>
-                <div className="service-item">
-                  <h3>Análisis de Regresión</h3>
-                  <p>Modelamiento de relaciones causales mediante regresiones lineales, múltiples y no lineales con rigor estadístico.</p>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Estadística Inferencial y Pruebas de Hipótesis</h3>
+                  <ul className="metodologia-lista">
+                    <li>Pruebas de comparación de medias (T de Student para muestras independientes y relacionadas, Z-test)</li>
+                    <li>Pruebas no paramétricas y de distribución libre (U de Mann-Whitney, Wilcoxon, Kruskal-Wallis)</li>
+                    <li>Análisis de varianza y covarianza (ANOVA)</li>
+                    <li>Pruebas de asociación, correlación y proporciones (Pearson, Spearman, Chi-cuadrado y Exacta de Fisher)</li>
+                  </ul>
                 </div>
-                <div className="service-item">
-                  <h3>Logit & Probit</h3>
-                  <p>Modelos de respuesta cualitativa y elección discreta para el análisis de variables dependientes binarias.</p>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Modelos Lineales y Multivariados</h3>
+                  <ul className="metodologia-lista">
+                    <li>Modelos de regresión (Lineal, logística múltiple y Poisson)</li>
+                    <li>Reducción de dimensionalidad y variables latentes (PCA, Análisis Factorial Exploratorio y Confirmatorio)</li>
+                    <li>Modelado de Ecuaciones Estructurales (SEM)</li>
+                  </ul>
                 </div>
-                <div className="service-item">
-                  <h3>Series de Tiempo</h3>
-                  <p>Modelos ARIMA, GARCH y análisis de estacionalidad para predicción y estudio de tendencias temporales.</p>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Análisis de Series de Tiempo y Pronóstico</h3>
+                  <ul className="metodologia-lista">
+                    <li>Modelos autorregresivos y de medias móviles (ARIMA, SARIMA, ARIMAX)</li>
+                    <li>Suavizado exponencial y modelos aditivos de predicción (Prophet, Holt-Winters)</li>
+                    <li>Modelos de heterocedasticidad condicional para volatilidad (ARCH / GARCH)</li>
+                    <li>Vectores Autorregresivos (VAR) y análisis de cointegración</li>
+                  </ul>
                 </div>
-                <div className="service-item">
-                  <h3>Embeddings & NLP</h3>
-                  <p>Transformación de texto en vectores matemáticos para análisis semántico y procesamiento de lenguaje natural.</p>
+
+              </div>
+            </div>
+          </section>
+
+          {/* ── Metodologías · Parte 2/2 ── */}
+          <section id="services-2" data-scroll-section>
+            <div className="services-bg-animation">
+              <HeroAnimation showShadow={false} />
+              <div className="animation-overlay-gradient"></div>
+            </div>
+
+            <div className="services-container services-container--continuation">
+
+              <div className="metodologias-grid">
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Aprendizaje Automático (Machine Learning)</h3>
+                  <ul className="metodologia-lista">
+                    <li>Algoritmos de clasificación y regresión avanzada (Random Forest, XGBoost, Máquinas de Vectores de Soporte - SVM)</li>
+                    <li>Métodos de agrupamiento o clustering (K-Means, DBSCAN, Clustering Jerárquico)</li>
+                    <li>Reducción de dimensionalidad no lineal (t-SNE, UMAP)</li>
+                  </ul>
                 </div>
-                <div className="service-item">
-                  <h3>Computer Vision</h3>
-                  <p>Detección de objetos y procesamiento de imágenes computacionales para la extracción de datos visuales.</p>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Análisis de Datos No Estructurados (Texto y Visión Computacional)</h3>
+                  <ul className="metodologia-lista">
+                    <li>Procesamiento de Lenguaje Natural (NLP), minería de texto y análisis de sentimiento</li>
+                    <li>Modelado de tópicos (Latent Dirichlet Allocation) y extracción de entidades</li>
+                    <li>Embeddings de texto para análisis semántico vectorial</li>
+                    <li>Visión artificial, detección de objetos en tiempo real (YOLO) y extracción cuantitativa de datos en video</li>
+                    <li>Segmentación semántica de imágenes y reconocimiento algorítmico de patrones visuales</li>
+                  </ul>
                 </div>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Estadística Espacial y Análisis de Redes Complejas</h3>
+                  <ul className="metodologia-lista">
+                    <li>Geoestadística y autocorrelación espacial (I de Moran / LISA)</li>
+                    <li>Modelos de regresión geográficamente ponderada (GWR)</li>
+                    <li>Análisis de hotspots y estimación de densidad de Kernel</li>
+                    <li>Análisis de Redes Sociales y Complejas (SNA), métricas de centralidad e intermediación topológica</li>
+                  </ul>
+                </div>
+
+                <div className="metodologia-familia">
+                  <h3 className="metodologia-titulo">Minería de Datos y Análisis de Sentimiento</h3>
+                  <ul className="metodologia-lista">
+                    <li>Análisis de Sentimiento</li>
+                    <li>Minería de Datos</li>
+                  </ul>
+                </div>
+
               </div>
             </div>
           </section>
@@ -581,20 +670,20 @@ export default function Home() {
             <div className="contact-bubbles-container">
 
               <a
-                href="https://www.linkedin.com/in/fabricioaurruchi/"
+                href="https://www.linkedin.com/company/datadaf/about/?viewAsMember=true"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-bubble contact-bubble-name"
               >
-                <span>DATAcore</span>
+                <span>DATAdaf</span>
               </a>
               <a
-                href="https://www.instagram.com/fabricio.urruchi/?hl=es"
+                href="https://www.instagram.com/datadaf?igsh=djljNjJ3YTcyamw%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-bubble contact-bubble-instagram"
               >
-                <span>@datacore</span>
+                <span>@datadaf</span>
               </a>
             </div>
             <div className="footer-signature-container">
@@ -604,7 +693,7 @@ export default function Home() {
                 </div>
                 <span className="signature-separator"> | </span>
                 <a href="/" className="signature-logo-link" onClick={handleReload}>
-                  <img src="/graficos/datacoreblanco.png" alt="DATAcore" className="footer-logo" />
+                  <img src="/graficos/datadafblanco.png" alt="DATAdaf" className="footer-logo" />
                 </a>
               </div>
             </div>
