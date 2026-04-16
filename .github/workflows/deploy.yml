@@ -1,0 +1,49 @@
+name: Deploy to DATAdaf
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Executing remote ssh commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }} # Valor esperado: cpolista
+          key: ${{ secrets.PROD_SSH_KEY }}
+          port: ${{ secrets.PROD_SSH_PORT }}
+          script: |
+            # Navegar a la carpeta del proyecto
+            cd /home/cpolista
+
+            # Clonar si no existe, o actualizar si ya existe
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/Fabricioup24/DATAdaf.git .
+            else
+              git pull origin main
+            fi
+
+            # Asegurar que nvm/node estén disponibles (ajustar según el profile del server)
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Instalar dependencias con pnpm
+            pnpm install
+
+            # Build del proyecto
+            pnpm build
+
+            # Reiniciar o iniciar la app con PM2 (usando puerto 3001)
+            # Nota: Se usa 'pnpm start' como script de ejecución
+            pm2 delete datadaf || true
+            pm2 start "pnpm start -- -p 3001" --name "datadaf"
+
+            # Guardar lista de pm2 para persistencia
+            pm2 save
