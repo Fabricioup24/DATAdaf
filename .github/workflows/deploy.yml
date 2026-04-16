@@ -1,4 +1,4 @@
-name: Deploy to DATAdaf
+name: Deploy Static Landing Page
 
 on:
   push:
@@ -6,44 +6,50 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Executing remote ssh commands
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }} # Valor esperado: cpolista
-          key: ${{ secrets.PROD_SSH_KEY }}
-          port: ${{ secrets.PROD_SSH_PORT }}
-          script: |
-            # Navegar a la carpeta del proyecto
-            cd /home/cpolista
+          node-version: '20'
 
-            # Clonar si no existe, o actualizar si ya existe
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/Fabricioup24/DATAdaf.git .
-            else
-              git pull origin main
-            fi
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
 
-            # Asegurar que nvm/node estén disponibles (ajustar según el profile del server)
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-            # Instalar dependencias con pnpm
-            pnpm install
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-            # Build del proyecto
-            pnpm build
+      - name: Install dependencies
+        run: pnpm install
 
-            # Reiniciar o iniciar la app con PM2 (usando puerto 3001)
-            # Nota: Se usa 'pnpm start' como script de ejecución
-            pm2 delete datadaf || true
-            pm2 start "pnpm start -- -p 3001" --name "datadaf"
+      - name: Build site
+        run: pnpm build
 
-            # Guardar lista de pm2 para persistencia
-            pm2 save
+      - name: Deploy to VPS via Rsync
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "out/"
+          REMOTE_HOST: ${{ secrets.PROD_SSH_HOST }}
+          REMOTE_PORT: ${{ secrets.PROD_SSH_PORT }}
+          REMOTE_USER: ${{ secrets.PROD_SSH_USER }}
+          TARGET: "/home/cpolista/"
+          EXCLUDE: "/.ssh/, /.git/"
