@@ -19,8 +19,46 @@ const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Solu
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+		<link rel="dns-prefetch" href="https://www.linkedin.com" />
+		<link rel="dns-prefetch" href="https://www.instagram.com" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://www.datadaf.com/" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content="https://www.datadaf.com/graficos/datadafnegro.png" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://www.datadaf.com/" />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content="https://www.datadaf.com/graficos/datadafnegro.png" />
+
+		<!-- JSON-LD -->
+		<script type="application/ld+json" is:inline set:html={`
+		{
+		  "@context": "https://schema.org",
+		  "@type": "ConsultingService",
+		  "name": "DATAdaf",
+		  "image": "https://www.datadaf.com/graficos/datadafnegro.png",
+		  "url": "https://www.datadaf.com/",
+		  "telephone": "+51934988647",
+		  "address": {
+		    "@type": "PostalAddress",
+		    "addressLocality": "Lima",
+		    "addressCountry": "PE"
+		  },
+		  "description": "Soluciones avanzadas en ciencia de datos, machine learning y visualización.",
+		  "sameAs": [
+		    "https://www.linkedin.com/company/datadaf",
+		    "https://www.instagram.com/datadaf"
+		  ]
+		}
+		`} />
 	</head>
 	<body>
 		<slot />

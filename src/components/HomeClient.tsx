@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import Marquee from './Marquee';
+
 import Lobby from './Lobby';
 import LocationTag from './LocationTag';
 import AboutMePage from './AboutMePage';
