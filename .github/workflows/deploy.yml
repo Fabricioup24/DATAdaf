@@ -1,4 +1,4 @@
-name: Deploy Static Landing Page
+name: Deploy DATAdaf Landing (Astro)
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -37,9 +37,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Build site
+      - name: Build Astro site
         run: pnpm build
 
       - name: Deploy to VPS via Rsync
@@ -47,9 +47,9 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "out/"
+          SOURCE: "dist/"
           REMOTE_HOST: ${{ secrets.PROD_SSH_HOST }}
           REMOTE_PORT: ${{ secrets.PROD_SSH_PORT }}
           REMOTE_USER: ${{ secrets.PROD_SSH_USER }}
           TARGET: "/home/cpolista/"
-          EXCLUDE: "/.ssh/, /.git/"
+          EXCLUDE: "/.ssh/, /.git/, seace/"
