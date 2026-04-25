@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+    description?: string;
+}
+
+const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Soluciones avanzadas en ciencia de datos, machine learning y visualización" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot />
+        
+        <script>
+            import Lenis from 'lenis';
+            import gsap from 'gsap';
+            import ScrollTrigger from 'gsap/ScrollTrigger';
+
+            // Registramos ScrollTrigger para que funcione junto a Lenis globalmente
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Inicializamos Lenis para Smooth Scroll global
+            const lenis = new Lenis({
+                autoRaf: true, // Lenis v1.3+ maneja raf automáticamente
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                smoothWheel: true,
+                wheelMultiplier: 1,
+                touchMultiplier: 2,
+            });
+
+            // Sincronizar Lenis con GSAP ScrollTrigger
+            lenis.on('scroll', ScrollTrigger.update);
+
+            // Añadir Lenis al ticker de GSAP
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            gsap.ticker.lagSmoothing(0);
+        </script>
+	</body>
+</html>
