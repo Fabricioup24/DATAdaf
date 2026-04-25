@@ -111,6 +111,9 @@ const LogoMarquee = ({ scrollDirection = 'up', scrollVelocity = 0 }: LogoMarquee
                                 <img 
                                   src={logo.src} 
                                   alt={logo.alt} 
+                                  width={150}
+                                  height={60}
+                                  loading="lazy"
                                   className="h-[clamp(42px,4.2vw,60px)] w-auto max-w-[clamp(140px,18vw,250px)] object-contain transition-all duration-300 ease-in-out group-hover:scale-110 max-md:h-[clamp(44px,12vw,65px)]" 
                                 />
                             </div>

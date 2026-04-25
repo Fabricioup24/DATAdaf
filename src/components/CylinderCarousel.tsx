@@ -221,6 +221,9 @@ const CylinderCarousel = () => {
                                     <img
                                         src={image.src}
                                         alt={image.alt}
+                                        width={350}
+                                        height={220}
+                                        loading="lazy"
                                         className="max-w-full max-h-full object-contain transition-transform duration-[600ms] ease-in-out group-hover:scale-105"
                                         onDragStart={(e) => e.preventDefault()}
                                     />

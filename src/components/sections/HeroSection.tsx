@@ -17,6 +17,9 @@ export default function HeroSection({ showLobby, handleReload }: HeroSectionProp
               src="/graficos/datadafblanco.png"
               alt="DATAdaf Logo - Consultoría de Ciencia de Datos y Metodología"
               className="header-logo"
+              width={196}
+              height={55}
+              loading="eager"
             />
           </a>
         </div>

@@ -51,7 +51,7 @@ const ContactSection = forwardRef<HTMLDivElement, ContactSectionProps>(
             </div>
             <span className="signature-separator"> | </span>
             <a href="/" className="signature-logo-link" onClick={handleReload}>
-              <img src="/graficos/datadafblanco.png" alt="DATAdaf" className="footer-logo" />
+              <img src="/graficos/datadafblanco.png" alt="DATAdaf" className="footer-logo" width={120} height={34} loading="lazy" />
             </a>
           </div>
         </div>
