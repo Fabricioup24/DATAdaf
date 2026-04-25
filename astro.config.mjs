@@ -1,28 +1,23 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
 
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [react()],
 
   vite: {
+    resolve: {
+      alias: {
+        'astro/entrypoints/prerender': fileURLToPath(new URL('./node_modules/astro/dist/entrypoints/prerender.js', import.meta.url)),
+        'astro/entrypoints/legacy': fileURLToPath(new URL('./node_modules/astro/dist/entrypoints/legacy.js', import.meta.url)),
+      },
+    },
     plugins: [
       tailwindcss(),
-      ViteImageOptimizer({
-        png: { quality: 80 },
-        webp: { quality: 75 },
-        jpeg: { quality: 75 },
-        svg: {
-          plugins: [
-            { name: 'removeViewBox', active: false },
-            { name: 'sortAttrs' },
-          ],
-        },
-      }),
     ],
   },
 });

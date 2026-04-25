@@ -18,7 +18,7 @@ const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Solu
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 		<link rel="icon" type="image/svg+xml" href="/favicomdata.svg" />
 		<link rel="dns-prefetch" href="https://www.linkedin.com" />
@@ -70,28 +70,39 @@ const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Solu
             import gsap from 'gsap';
             import ScrollTrigger from 'gsap/ScrollTrigger';
 
-            // Registramos ScrollTrigger para que funcione junto a Lenis globalmente
             gsap.registerPlugin(ScrollTrigger);
 
-            // Inicializamos Lenis para Smooth Scroll global
+            if (window.__datadafLenisCleanup) {
+                window.__datadafLenisCleanup();
+            }
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const lenis = new Lenis({
-                autoRaf: true, // Lenis v1.3+ maneja raf automáticamente
-                duration: 1.2,
+                autoRaf: false,
+                duration: prefersReducedMotion ? 0.01 : 1.1,
                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                smoothWheel: true,
+                smoothWheel: !prefersReducedMotion,
                 wheelMultiplier: 1,
-                touchMultiplier: 2,
+                touchMultiplier: prefersReducedMotion ? 1 : 1.4,
             });
 
-            // Sincronizar Lenis con GSAP ScrollTrigger
+            window.lenis = lenis;
             lenis.on('scroll', ScrollTrigger.update);
 
-            // Añadir Lenis al ticker de GSAP
-            gsap.ticker.add((time) => {
-                lenis.raf(time * 1000);
-            });
+            let rafId = 0;
+            const raf = (time) => {
+                lenis.raf(time);
+                rafId = window.requestAnimationFrame(raf);
+            };
+            rafId = window.requestAnimationFrame(raf);
 
             gsap.ticker.lagSmoothing(0);
+
+            window.__datadafLenisCleanup = () => {
+                window.cancelAnimationFrame(rafId);
+                lenis.destroy();
+                delete window.lenis;
+            };
         </script>
 	</body>
 </html>

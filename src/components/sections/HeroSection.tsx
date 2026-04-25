@@ -4,15 +4,17 @@ import HeroAnimation from '../HeroAnimation';
 
 interface HeroSectionProps {
   showLobby: boolean;
-  handleReload: (e: React.MouseEvent) => void;
+  menuOpen: boolean;
+  onMenuToggle: () => void;
+  handleScrollTop: (e: React.MouseEvent) => void;
 }
 
-export default function HeroSection({ showLobby, handleReload }: HeroSectionProps) {
+export default function HeroSection({ showLobby, menuOpen, onMenuToggle, handleScrollTop }: HeroSectionProps) {
   return (
     <section id="hero" className="relative">
       <header>
         <div className="header-signature">
-          <a href="/" className="signature-link" onClick={handleReload}>
+          <a href="#hero" className="signature-link" onClick={handleScrollTop}>
             <img
               src="/graficos/datadafblanco.png"
               alt="DATAdaf Logo - Consultoría de Ciencia de Datos y Metodología"
@@ -23,6 +25,18 @@ export default function HeroSection({ showLobby, handleReload }: HeroSectionProp
             />
           </a>
         </div>
+        <button
+          type="button"
+          className={`menu-toggle ${menuOpen ? 'open' : ''}`}
+          onClick={onMenuToggle}
+          aria-expanded={menuOpen}
+          aria-controls="site-menu"
+          aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </header>
 
       {!showLobby && <LocationTag />}

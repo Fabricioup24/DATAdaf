@@ -2,10 +2,11 @@ import React from 'react';
 import PointSphere from '../PointSphere';
 
 interface AboutSectionProps {
+  handleOpenMetodologias: (e: React.MouseEvent) => void;
   handleScrollTo: (e: React.MouseEvent, targetId: string) => void;
 }
 
-export default function AboutSection({ handleScrollTo }: AboutSectionProps) {
+export default function AboutSection({ handleOpenMetodologias, handleScrollTo }: AboutSectionProps) {
   return (
     <section id="about" data-scroll-class="is-inview">
       <div className="about-content">
@@ -15,6 +16,9 @@ export default function AboutSection({ handleScrollTo }: AboutSectionProps) {
         <a href="#contact" className="about-cta-button" onClick={(e) => handleScrollTo(e, '#contact')}>
           No te quedes atrás, transformamos datos complejos en <span className="highlight">rigor metodológico y decisiones estratégicas</span>
         </a>
+        <button type="button" className="about-secondary-link" onClick={handleOpenMetodologias}>
+          Ver metodologías destacadas
+        </button>
         <p className="about-description">
           En DATAdaf somos un equipo de científicos de datos listos para estructurar, analizar y rentabilizar tu información. No importa si necesitas blindar la metodología de tu tesis de pregrado, maestría o doctorado, o si buscas optimizar los procesos de tu empresa: le damos a tu proyecto el respaldo técnico que la realidad exige.
         </p>

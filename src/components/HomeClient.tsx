@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 
-import AboutMePage from './AboutMePage';
 import Lobby from './Lobby';
 import HeroSection from './sections/HeroSection';
 import AboutSection from './sections/AboutSection';
@@ -12,75 +11,256 @@ import VisualizationSection from './sections/VisualizationSection';
 import TestimonialsSection from './sections/TestimonialsSection';
 import ContactSection from './sections/ContactSection';
 
+const AboutMePage = lazy(() => import('./AboutMePage'));
+
+const testimonials = [
+  {
+    stars: '★★★★★',
+    text: 'La culminación de mi tesis doctoral fue posible gracias a un acompañamiento excepcional. El soporte brindado no solo garantizó una corrección de estilo pulcra y profesional, sino que fue determinante en la estructuración y ejecución metodológica, aportando la solidez técnica necesaria para mi grado en Negocios Globales.',
+    author: 'Ivan D.',
+    role: 'Doctor en Negocios Globales, Universidad Ricardo Palma',
+  },
+  {
+    stars: '★★★★★',
+    text: 'Gracias a DATAdaf, logré materializar el diseño de investigación que tenía proyectado para mi tesis de licenciatura. Pude realizar la detección de rejas viales en toda Lima Metropolitana utilizando el modelo YOLO26 y técnicas de visión artificial. Recomiendo ampliamente a DATAdaf porque su enfoque logra trascender las metodologías tradicionales.',
+    author: 'Antonio U.',
+    role: 'Bachiller en Ciencias Políticas por la UPC',
+  },
+  {
+    stars: '★★★★★',
+    text: 'El año pasado quise trabajar en un proyecto personal orientado a la visualización de datos de corte transversal y me sirvió mucho la ayuda con los gráficos, la codificación y sus buenas prácticas. Recomiendo DATAdaf a todo aquel que esté interesado en el mundo de los datos.',
+    author: 'Mia T.',
+    role: 'B.S. in Political Science, Universidad de Arizona',
+  },
+  {
+    stars: '★★★★★',
+    text: 'Trabajé con DATAdaf para aterrizar el análisis de datos de un proyecto inmobiliario y los resultados cumplieron totalmente mis expectativas. Me ayudaron a organizar variables complejas y a traducirlas en una infografía técnica clara, resolviendo dudas puntuales sobre el procesamiento de la información. Es una opción práctica y profesional para quienes necesitan rigor en la visualización de datos aplicados a la arquitectura.',
+    author: 'Jimena T.',
+    role: 'Estudiante de arquitectura, Universidad de Lima',
+  },
+];
+
+type LenisController = {
+  scrollTo?: (target: string | Element | number, options?: Record<string, unknown>) => void;
+  start?: () => void;
+  stop?: () => void;
+};
+
+declare global {
+  interface Window {
+    lenis?: LenisController;
+  }
+}
+
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 export default function HomeClient() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
   const [scrollVelocity, setScrollVelocity] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLobby, setShowLobby] = useState(true);
   const [showAboutMePage, setShowAboutMePage] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [, setModalClosing] = useState(false);
-  const [, setModalRevealing] = useState(false);
-
-  const testimonials = [
-    {
-      stars: '★★★★★',
-      text: "La culminación de mi tesis doctoral fue posible gracias a un acompañamiento excepcional. El soporte brindado no solo garantizó una corrección de estilo pulcra y profesional, sino que fue determinante en la estructuración y ejecución metodológica, aportando la solidez técnica necesaria para mi grado en Negocios Globales.",
-      author: "Ivan D.",
-      role: "Doctor en Negocios Globales, Universidad Ricardo Palma"
-    },
-    {
-      stars: '★★★★★',
-      text: "Gracias a DATAdaf, logré materializar el diseño de investigación que tenía proyectado para mi tesis de licenciatura. Pude realizar la detección de rejas viales en toda Lima Metropolitana utilizando el modelo YOLO26 y técnicas de visión artificial. Recomiendo ampliamente a DATAdaf porque su enfoque logra trascender las metodologías tradicionales.",
-      author: "Antonio U.",
-      role: "Bachiller en Ciencias Políticas por la UPC"
-    },
-    {
-      stars: '★★★★★',
-      text: "El año pasado quise trabajar en un proyecto personal orientado a la visualización de datos de corte transversal y me sirvió mucho la ayuda con los gráficos, la codificación y sus buenas prácticas. Recomiendo DATAdaf a todo aquel que esté interesado en el mundo de los datos.",
-      author: "Mia T.",
-      role: "B.S. in Political Science, Universidad de Arizona"
-    },
-    {
-      stars: '★★★★★',
-      text: "Trabajé con DATAdaf para aterrizar el análisis de datos de un proyecto inmobiliario y los resultados cumplieron totalmente mis expectativas. Me ayudaron a organizar variables complejas y a traducirlas en una infografía técnica clara, resolviendo dudas puntuales sobre el procesamiento de la información. Es una opción práctica y profesional para quienes necesitan rigor en la visualización de datos aplicados a la arquitectura.",
-      author: "Jimena T.",
-      role: "Estudiante de arquitectura, Universidad de Lima"
-    }
-  ];
-
-  // Rotación automática de testimonios
-  useEffect(() => {
-    if (showLobby) return;
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000); // Rota cada 5 segundos
-    return () => clearInterval(interval);
-  }, [showLobby, testimonials.length]);
 
   const contactRef = useRef<HTMLDivElement>(null);
   const curtainRef = useRef<HTMLDivElement>(null);
-  const copyrightRef = useRef<HTMLDivElement>(null);
   const copyrightFooterRef = useRef<HTMLDivElement>(null);
 
-  // Manejar el bloqueo de scroll cuando el modal está abierto
+  useEffect(() => {
+    if (showLobby) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [showLobby]);
+
   useEffect(() => {
     if (showAboutMePage) {
       document.body.style.overflow = 'hidden';
-      // Si usamos lenis global, se puede pausar despachando evento o accediendo a window.lenis si existiese
-      // pero overflow hidden detiene lenis de scrollear el body
-    } else {
-      document.body.style.overflow = '';
+      window.lenis?.stop?.();
+      return;
     }
+
+    document.body.style.overflow = '';
+    window.lenis?.start?.();
   }, [showAboutMePage]);
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        setShowAboutMePage(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  useEffect(() => {
+    if (showLobby) {
+      return;
+    }
+
+    let lastY = window.scrollY;
+    let lastTime = performance.now();
+    let velocityReset: number | undefined;
+
+    const updateScrollMetrics = () => {
+      const currentY = window.scrollY;
+      const now = performance.now();
+      const delta = currentY - lastY;
+      const elapsed = Math.max(16, now - lastTime);
+
+      if (delta !== 0) {
+        setScrollDirection(delta > 0 ? 'down' : 'up');
+        setScrollVelocity(Math.min(1, Math.abs(delta) / elapsed));
+      }
+
+      window.clearTimeout(velocityReset);
+      velocityReset = window.setTimeout(() => setScrollVelocity(0), 120);
+
+      lastY = currentY;
+      lastTime = now;
+    };
+
+    window.addEventListener('scroll', updateScrollMetrics, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', updateScrollMetrics);
+      window.clearTimeout(velocityReset);
+    };
+  }, [showLobby]);
+
+  useEffect(() => {
+    if (showLobby) {
+      return;
+    }
+
+    const triggers: ScrollTrigger[] = [];
+    const sections = document.querySelectorAll<HTMLElement>('[data-scroll-class]');
+    sections.forEach((section) => {
+      const cls = section.getAttribute('data-scroll-class');
+      if (!cls) {
+        return;
+      }
+
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 80%',
+          toggleClass: cls,
+        }),
+      );
+    });
+
+    const aboutContent = document.querySelector('.about-content');
+    let aboutObserver: IntersectionObserver | undefined;
+    if (aboutContent) {
+      aboutObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-inview');
+              aboutObserver?.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3, rootMargin: '-100px 0px -100px 0px' },
+      );
+      aboutObserver.observe(aboutContent);
+    }
+
+    const contactSection = contactRef.current;
+    const waveCurtain = curtainRef.current;
+    const handleScrollCurtain = () => {
+      if (!contactSection || !waveCurtain) {
+        return;
+      }
+
+      const rect = contactSection.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
+
+      waveCurtain.style.transform = `translateY(${-progress * 105}%) translateZ(0)`;
+      if (progress > 0.95) {
+        waveCurtain.style.opacity = '0';
+        waveCurtain.style.visibility = 'hidden';
+      } else {
+        waveCurtain.style.opacity = '1';
+        waveCurtain.style.visibility = 'visible';
+      }
+    };
+
+    handleScrollCurtain();
+    window.addEventListener('scroll', handleScrollCurtain, { passive: true });
+
+    const projectsSection = document.querySelector('#database');
+    let centerCardTimer: number | undefined;
+    if (projectsSection) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: projectsSection,
+          start: 'top 70%',
+          onEnter: () => {
+            projectsSection.classList.add('cards-visible');
+            centerCardTimer = window.setTimeout(() => {
+              const centerCard = projectsSection.querySelector('.card-center');
+              centerCard?.classList.add('appeared');
+            }, 7000);
+          },
+          onLeaveBack: () => {
+            projectsSection.classList.remove('cards-visible');
+          },
+        }),
+      );
+    }
+
+    const services2Section = document.querySelector('#services-2');
+    if (services2Section) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: services2Section,
+          start: 'top bottom',
+          onEnter: () => services2Section.classList.add('cards-visible'),
+        }),
+      );
+    }
+
+    return () => {
+      aboutObserver?.disconnect();
+      window.removeEventListener('scroll', handleScrollCurtain);
+      window.clearTimeout(centerCardTimer);
+      triggers.forEach((trigger) => trigger.kill());
+    };
+  }, [showLobby]);
+
+  useEffect(() => {
+    const signature = copyrightFooterRef.current;
+    if (!signature) {
+      return;
+    }
+
+    const handleMouseEnter = () => signature.classList.add('copyright-rotating');
+    const handleMouseLeave = () => signature.classList.remove('copyright-rotating');
+
+    signature.addEventListener('mouseenter', handleMouseEnter);
+    signature.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      signature.removeEventListener('mouseenter', handleMouseEnter);
+      signature.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    setMenuOpen((prev) => !prev);
   };
 
   const handleLobbyComplete = () => {
@@ -90,204 +270,95 @@ export default function HomeClient() {
     ScrollTrigger.refresh();
   };
 
-  const handleReload = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.reload();
-  };
+  const handleScrollTo = (event: React.MouseEvent, targetId: string) => {
+    event.preventDefault();
+    setMenuOpen(false);
 
-  const handleScrollTo = (e: React.MouseEvent, targetId: string) => {
-    e.preventDefault();
-    if (menuOpen) toggleMenu();
-    // Reemplazamos locomotive scroll por lenis global scrollTo si fuese necesario
-    // Aquí implementamos un scroll suave genérico nativo o GSAP
     const target = document.querySelector(targetId);
-    if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+    if (!target) {
+      return;
     }
+
+    if (window.lenis?.scrollTo) {
+      window.lenis.scrollTo(target, { duration: 1 });
+      return;
+    }
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleOpenMetodologias = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (menuOpen) toggleMenu();
+  const handleScrollTop = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setMenuOpen(false);
+
+    if (window.lenis?.scrollTo) {
+      window.lenis.scrollTo(0, { duration: 1 });
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenMetodologias = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setMenuOpen(false);
     setShowAboutMePage(true);
   };
-
-  // Reemplazar LocomotiveScroll con ScrollTrigger
-  useEffect(() => {
-    if (showLobby) return;
-
-    const sections = document.querySelectorAll('[data-scroll-class]');
-    sections.forEach(section => {
-        const cls = section.getAttribute('data-scroll-class');
-        if (cls) {
-            ScrollTrigger.create({
-                trigger: section,
-                start: "top 80%",
-                toggleClass: cls,
-                once: false
-            });
-        }
-    });
-
-    // Observer dedicado para .about-content (requiere is-inview en el propio div)
-    const aboutContent = document.querySelector('.about-content');
-    if (aboutContent) {
-        const aboutObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-inview');
-                    aboutObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.3, rootMargin: '-100px 0px -100px 0px' });
-        aboutObserver.observe(aboutContent);
-    }
-
-    // Efecto de cortina ondulada que revela la sección de contacto
-    // Usa scroll listener directo como en el original (Locomotive Scroll)
-    const contactSection = contactRef.current;
-    const waveCurtain = curtainRef.current;
-
-    const handleScrollCurtain = () => {
-        if (contactSection && waveCurtain) {
-            const rect = contactSection.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-
-            // Cálculo basado en la posición relativa al viewport
-            const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
-
-            waveCurtain.style.transform = `translateY(${-progress * 105}%) translateZ(0)`;
-
-            if (progress > 0.95) {
-                waveCurtain.style.opacity = '0';
-                waveCurtain.style.visibility = 'hidden';
-            } else {
-                waveCurtain.style.opacity = '1';
-                waveCurtain.style.visibility = 'visible';
-            }
-        }
-    };
-
-    window.addEventListener('scroll', handleScrollCurtain, { passive: true });
-
-    // Efecto de las cartas en la DB
-    const projectsSection = document.querySelector('#database');
-    if (projectsSection) {
-        ScrollTrigger.create({
-            trigger: projectsSection,
-            start: "top 70%",
-            onEnter: () => {
-                projectsSection.classList.add('cards-visible');
-                setTimeout(() => {
-                    const centerCard = projectsSection.querySelector('.card-center');
-                    if (centerCard) {
-                        centerCard.classList.add('appeared');
-                    }
-                }, 7000);
-            },
-            onLeaveBack: () => {
-                projectsSection.classList.remove('cards-visible');
-            }
-        });
-    }
-
-    // Observer para #services-2
-    const services2Section = document.querySelector('#services-2');
-    if (services2Section) {
-        ScrollTrigger.create({
-            trigger: services2Section,
-            start: "top bottom",
-            onEnter: () => services2Section.classList.add('cards-visible')
-        });
-    }
-
-    return () => {
-        ScrollTrigger.getAll().forEach(t => t.kill());
-        window.removeEventListener('scroll', handleScrollCurtain);
-    };
-  }, [showLobby]);
-
-  useEffect(() => {
-    const handleMouseEnter = (e: MouseEvent) => {
-      (e.currentTarget as HTMLElement).classList.add('copyright-rotating');
-    };
-
-    const handleMouseLeave = (e: MouseEvent) => {
-      (e.currentTarget as HTMLElement).classList.remove('copyright-rotating');
-    };
-
-    const sigs = [copyrightRef.current, copyrightFooterRef.current].filter(Boolean) as HTMLElement[];
-
-    sigs.forEach(sig => {
-      sig.addEventListener('mouseenter', handleMouseEnter);
-      sig.addEventListener('mouseleave', handleMouseLeave);
-    });
-
-    return () => {
-      sigs.forEach(sig => {
-        sig.removeEventListener('mouseenter', handleMouseEnter);
-        sig.removeEventListener('mouseleave', handleMouseLeave);
-      });
-    };
-  }, []);
 
   return (
     <>
       {showLobby && <Lobby onComplete={handleLobbyComplete} />}
 
       {showAboutMePage && (
-        <AboutMePage
-          onExitStart={() => setModalClosing(true)}
-          onBeforeUnmount={() => {
-            setModalRevealing(true);
-            setModalClosing(false); // Ya se cubrió, ahora se revela
-          }}
-          onClose={() => {
-            setShowAboutMePage(false);
-            setModalRevealing(false);
-            setModalClosing(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <AboutMePage onClose={() => setShowAboutMePage(false)} />
+        </Suspense>
       )}
 
-      {/* Side Menu with Wave Effect */}
-      <div className={`side-menu ${menuOpen ? 'open' : ''} ${!showLobby ? 'page-ready' : ''}`}>
+      <div id="site-menu" className={`side-menu ${menuOpen ? 'open' : ''} ${!showLobby ? 'page-ready' : ''}`} aria-hidden={!menuOpen}>
         <svg className="wave-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path d="M0,0 Q30,50 0,100 L100,100 L100,0 Z" fill="#ffffff" />
         </svg>
-        <nav className="side-menu-nav">
+        <nav className="side-menu-nav" aria-label="Navegacion principal">
           <ul>
             <li>
-              <a href="#metodologias" onClick={handleOpenMetodologias}>Metodologías</a>
+              <a href="#metodologias" onClick={handleOpenMetodologias}>Metodologias</a>
             </li>
             <li>
-              <a href="#database" onClick={(e) => handleScrollTo(e, '#database')}>Base de Datos</a>
+              <a href="#database" onClick={(event) => handleScrollTo(event, '#database')}>Base de Datos</a>
             </li>
             <li>
-              <a href="#visualizacion" onClick={(e) => handleScrollTo(e, '#visualizacion')}>Visualización de Datos</a>
+              <a href="#visualizacion" onClick={(event) => handleScrollTo(event, '#visualizacion')}>Visualizacion de Datos</a>
             </li>
             <li>
-              <a href="/blog" onClick={toggleMenu}>Blog</a>
+              <a href="#contact" onClick={(event) => handleScrollTo(event, '#contact')}>Contacto</a>
+            </li>
+            <li>
+              <a href="/blog" onClick={() => setMenuOpen(false)}>Blog</a>
             </li>
           </ul>
         </nav>
       </div>
 
-      {/* Overlay */}
       <div
         className={`menu-overlay ${menuOpen ? 'visible' : ''}`}
         onClick={toggleMenu}
-      ></div>
+        aria-hidden={!menuOpen}
+      />
 
-      <div
-        id="main-wrapper"
-        className={`${!showLobby ? 'page-ready' : ''}`}
-        ref={scrollRef}
-      >
+      <div id="main-wrapper" className={`${!showLobby ? 'page-ready' : ''}`}>
         <main>
-          <HeroSection showLobby={showLobby} handleReload={handleReload} />
-          
-          <AboutSection handleScrollTo={handleScrollTo} />
+          <HeroSection
+            showLobby={showLobby}
+            onMenuToggle={toggleMenu}
+            menuOpen={menuOpen}
+            handleScrollTop={handleScrollTop}
+          />
+
+          <AboutSection
+            handleOpenMetodologias={handleOpenMetodologias}
+            handleScrollTo={handleScrollTo}
+          />
 
           <ServicesSection />
 
@@ -295,17 +366,17 @@ export default function HomeClient() {
 
           <VisualizationSection />
 
-          <TestimonialsSection 
-            testimonials={testimonials} 
-            activeTestimonial={activeTestimonial} 
-            setActiveTestimonial={setActiveTestimonial} 
+          <TestimonialsSection
+            testimonials={testimonials}
+            activeTestimonial={activeTestimonial}
+            setActiveTestimonial={setActiveTestimonial}
           />
 
-          <ContactSection 
-            ref={contactRef} 
-            curtainRef={curtainRef} 
-            copyrightFooterRef={copyrightFooterRef} 
-            handleReload={handleReload} 
+          <ContactSection
+            ref={contactRef}
+            curtainRef={curtainRef}
+            copyrightFooterRef={copyrightFooterRef}
+            handleScrollTop={handleScrollTop}
           />
         </main>
       </div>

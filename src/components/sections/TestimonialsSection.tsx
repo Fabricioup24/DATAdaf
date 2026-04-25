@@ -50,11 +50,14 @@ export default function TestimonialsSection({ testimonials, activeTestimonial, s
 
           <div className="testimonial-dots">
             {testimonials.map((_, index) => (
-              <div
+              <button
+                type="button"
                 key={index}
-                className={`dot ${index === activeTestimonial ? 'active' : ''}`}
+                className={`testimonial-dot ${index === activeTestimonial ? 'active' : ''}`}
                 onClick={() => setActiveTestimonial(index)}
-              ></div>
+                aria-label={`Ver testimonio ${index + 1}`}
+                aria-pressed={index === activeTestimonial}
+              />
             ))}
           </div>
         </div>

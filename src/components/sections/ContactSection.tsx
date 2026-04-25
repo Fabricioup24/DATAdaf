@@ -3,11 +3,11 @@ import React, { forwardRef } from 'react';
 interface ContactSectionProps {
   curtainRef: React.RefObject<HTMLDivElement>;
   copyrightFooterRef: React.RefObject<HTMLDivElement>;
-  handleReload: (e: React.MouseEvent) => void;
+  handleScrollTop: (e: React.MouseEvent) => void;
 }
 
 const ContactSection = forwardRef<HTMLDivElement, ContactSectionProps>(
-  ({ curtainRef, copyrightFooterRef, handleReload }, ref) => {
+  ({ curtainRef, copyrightFooterRef, handleScrollTop }, ref) => {
     return (
       <section id="contact" ref={ref}>
         <div className="contact-wave-curtain" ref={curtainRef}>
@@ -27,6 +27,14 @@ const ContactSection = forwardRef<HTMLDivElement, ContactSectionProps>(
         </div>
 
         <div className="contact-bubbles-container">
+          <a
+            href="https://wa.me/51934988647"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="contact-bubble contact-bubble-whatsapp"
+          >
+            <span>WhatsApp</span>
+          </a>
           <a
             href="https://www.linkedin.com/company/datadaf/about/?viewAsMember=true"
             target="_blank"
@@ -50,7 +58,7 @@ const ContactSection = forwardRef<HTMLDivElement, ContactSectionProps>(
               <span>Copyright</span>
             </div>
             <span className="signature-separator"> | </span>
-            <a href="/" className="signature-logo-link" onClick={handleReload}>
+            <a href="#hero" className="signature-logo-link" onClick={handleScrollTop}>
               <img src="/graficos/datadafblanco.png" alt="DATAdaf" className="footer-logo" width={120} height={34} loading="lazy" />
             </a>
           </div>
