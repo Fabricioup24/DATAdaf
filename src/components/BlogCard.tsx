@@ -1,4 +1,4 @@
-import React from 'react';
+import Labels, { type LabelCategory } from './labels';
 
 /**
  * Props for the BlogCard component
@@ -13,7 +13,7 @@ interface BlogCardProps {
   /** Optional image URL */
   imageUrl?: string;
   /** Category or tag */
-  category?: string;
+  category?: LabelCategory;
   /** Visual variant of the card */
   variant?: 'light' | 'dark';
 }
@@ -24,7 +24,7 @@ interface BlogCardProps {
  * @param {BlogCardProps} props - The component props
  * @returns {JSX.Element} The rendered BlogCard
  */
-const BlogCard = ({ title, excerpt, date, imageUrl, category = 'Análisis', variant = 'dark' }: BlogCardProps) => {
+const BlogCard = ({ title, excerpt, date, imageUrl, category = 'analisis', variant = 'dark' }: BlogCardProps) => {
   const isLight = variant === 'light';
   
   return (
@@ -46,9 +46,7 @@ const BlogCard = ({ title, excerpt, date, imageUrl, category = 'Análisis', vari
       
       <div className="p-10">
         <div className="flex items-center gap-4 mb-6">
-          <span className="px-4 py-1 text-[10px] uppercase tracking-[0.2em] font-black bg-blue-600 text-white rounded-full">
-            {category}
-          </span>
+          <Labels category={category} className="!px-4 !py-1 !text-[10px]" />
           <time className={`text-xs font-bold ${isLight ? 'text-[#121212]/30' : 'text-white/40'}`}>{date}</time>
         </div>
         

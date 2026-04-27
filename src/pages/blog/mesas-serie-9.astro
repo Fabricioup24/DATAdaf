@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar';
 import MapContainer from '../../components/MapContainer';
+import Labels from '../../components/labels';
 import type { VotingTable } from '../../components/MapContainer';
 
 // Sample data for the map (user will provide more later)
@@ -24,7 +25,7 @@ const votingTables: VotingTable[] = [
 ---
 
 <Layout 
-  title="Mesas Serie 9 | Blog DATAdaf"
+  title="Mesas Serie 900: Auditoría & Datos | DATAdaf"
   description="Un análisis profundo sobre la arquitectura de datos y optimización de procesos en la nueva generación de infraestructura para el procesamiento masivo."
 >
   <div id="main-wrapper" class="page-ready bg-white min-h-screen text-[#121212]">
@@ -37,16 +38,15 @@ const votingTables: VotingTable[] = [
       <article class="max-w-4xl mx-auto">
         <div class="mb-12">
           <div class="flex items-center gap-4 mb-8">
-            <span class="px-5 py-1.5 text-[11px] uppercase tracking-[0.3em] font-black bg-blue-600 text-white rounded-full shadow-lg shadow-blue-600/20">
-              Metodología
-            </span>
+            <Labels category="geolocalizacion" client:load />
+            <Labels category="ciencia-de-datos" client:load />
             <div class="h-px w-8 bg-[#121212]/10"></div>
             <time class="text-xs font-bold text-[#121212]/40 uppercase tracking-widest">27 de Abril, 2026</time>
           </div>
           
           <h1 class="text-5xl md:text-8xl font-black mb-10 leading-[0.9] tracking-tighter text-[#121212]">
-            Mesas Serie 9 <br/>
-            <span class="text-blue-600">Geolocalización</span>
+            Mesas Serie 900: <br/>
+            <span class="text-blue-600">Auditoría & Datos</span>
           </h1>
           
           <p class="text-xl md:text-2xl text-[#121212]/70 font-medium leading-relaxed max-w-2xl">
@@ -56,8 +56,30 @@ const votingTables: VotingTable[] = [
 
         <section class="mb-16">
           <div class="prose prose-lg max-w-none mb-12">
+            
+            <div class="glass-card p-8 my-10 border-l-4 border-blue-600 bg-blue-50/30">
+              <h3 class="text-xl font-black mb-4 uppercase tracking-wider text-blue-900">Contexto Técnico y Legal</h3>
+              <p class="text-blue-900/80 leading-relaxed mb-4">
+                Las mesas con número de identificación a partir del <strong>900001</strong> corresponden a comunidades rurales alejadas y centros poblados. Este mecanismo no es una irregularidad reciente; existe y se implementa desde el año <strong>2005</strong> para facilitar el derecho al voto en zonas de difícil acceso.
+              </p>
+              <ul class="list-none p-0 m-0 space-y-2 text-sm font-bold text-blue-900/70">
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                  Auditable a través del portal oficial de resultados.
+                </li>
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                  Facilitación del voto en centros poblados rurales.
+                </li>
+                <li class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                  Implementado bajo estándares internacionales desde hace más de dos décadas.
+                </li>
+              </ul>
+            </div>
+
             <p>
-              La visualización espacial de los centros de votación es fundamental para entender la logística detrás de un proceso electoral a gran escala. Con la implementación de la <strong>Serie 9</strong>, hemos logrado estructurar coordenadas y direcciones con una precisión sin precedentes.
+              En el contexto de las elecciones de abril de 2026, la serie 900 001 fue erróneamente señalada como un recurso de supuesto fraude electoral. Nuestro análisis mediante geolocalización demuestra que estas ubicaciones coinciden perfectamente con la geografía de centros poblados históricamente registrados, desmitificando narrativas sin base técnica.
             </p>
           </div>
 

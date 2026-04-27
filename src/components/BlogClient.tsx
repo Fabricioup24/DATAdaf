@@ -73,7 +73,7 @@ const BlogClient = () => {
                 title="Mesas Serie 9"
                 excerpt="Un análisis profundo sobre la arquitectura de datos y optimización de procesos en la nueva generación de infraestructura para el procesamiento masivo."
                 date="27 de Abril, 2026"
-                category="Metodología"
+                category="metodologia"
                 imageUrl="https://images.unsplash.com/photo-1518433278988-d9bcda95634a?q=80&w=1000&auto=format&fit=crop"
                 variant="light"
               />
