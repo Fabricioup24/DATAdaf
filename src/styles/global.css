@@ -1,64 +1,101 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-slideInFromLeft: slideInFromLeft 1s ease-out 0.5s both;
-  --animate-bounceIn: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.35s forwards;
-  --animate-scaleOut: scaleOut 0.35s ease-in forwards;
-  --animate-shimmer: shimmer 3s linear infinite;
+    --animate-slideInFromLeft: slideInFromLeft 1s ease-out 0.5s both;
+    --animate-bounceIn: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.35s forwards;
+    --animate-scaleOut: scaleOut 0.35s ease-in forwards;
+    --animate-shimmer: shimmer 3s linear infinite;
 
-  @keyframes slideInFromLeft {
-    from {
-      transform: translateX(-100%) translateY(-50%);
-      opacity: 0;
+    @keyframes slideInFromLeft {
+        from {
+            transform: translateX(-100%) translateY(-50%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0) translateY(-50%);
+            opacity: 1;
+        }
     }
-    to {
-      transform: translateX(0) translateY(-50%);
-      opacity: 1;
+
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
-  }
 
-  @keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-  }
+    @keyframes scaleOut {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
 
-  @keyframes scaleOut {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0); opacity: 0; }
-  }
+        100% {
+            transform: scale(0);
+            opacity: 0;
+        }
+    }
 
-  @keyframes shimmer {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-  }
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
 
-  --animate-fadeInScale: fadeInScale 0.3s ease-in-out;
-  @keyframes fadeInScale {
-    0% { opacity: 0; transform: scale(0.9); }
-    100% { opacity: 1; transform: scale(1); }
-  }
+        100% {
+            transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+    }
+
+    --animate-fadeInScale: fadeInScale 0.3s ease-in-out;
+
+    @keyframes fadeInScale {
+        0% {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 }
 
 /* Lenis Scroll Base Styles */
-html.lenis, html.lenis body {
-  height: auto;
+html.lenis,
+html.lenis body {
+    height: auto;
 }
+
 .lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+    scroll-behavior: auto !important;
 }
+
 .lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+    overscroll-behavior: contain;
 }
+
 .lenis.lenis-stopped {
-  overflow: hidden;
+    overflow: hidden;
 }
+
 .lenis.lenis-smooth iframe {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 html {
-    overflow: hidden; /* Oculto inicialmente, modificado por Lenis */
+    overflow: hidden;
+    /* Oculto inicialmente, modificado por Lenis */
 }
 
 /* Ocultar scrollbar permanentemente */
@@ -4529,6 +4566,7 @@ header {
 }
 
 @media (max-width: 1024px) {
+
     .services-container,
     .services-container--continuation,
     .database-container {
@@ -4545,6 +4583,7 @@ header {
 }
 
 @media (max-width: 768px) {
+
     #main-wrapper,
     section,
     .services-container,
@@ -4558,4 +4597,50 @@ header {
         width: 100%;
         max-width: 100%;
     }
+}
+
+/* --- Blog & Map Premium Styles --- */
+
+.map-premium-wrapper {
+    position: relative;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(18, 18, 18, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.map-premium-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.2);
+}
+
+/* Customizing MapLibre Popups to match brand */
+.maplibregl-popup-content {
+    border-radius: 1rem !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(18, 18, 18, 0.05) !important;
+}
+
+.maplibregl-popup-close-button {
+    padding: 8px !important;
+    font-size: 1.2rem !important;
+    color: #121212 !important;
+}
+
+.article-gradient-title {
+    background: linear-gradient(to right, #121212 20%, #0055ff 50%, #121212 80%);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sweepEffect 8s ease-in-out infinite;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(18, 18, 18, 0.05);
+    border-radius: 1.5rem;
 }
