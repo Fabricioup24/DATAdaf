@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import BlogCard from './BlogCard';
+import HeroAnimation from './HeroAnimation';
 
 /**
  * Client component for the Blog page.
@@ -25,7 +26,7 @@ const BlogClient = () => {
 
   return (
     <>
-      <div id="main-wrapper" className="page-ready bg-white min-h-screen text-[#121212]">
+      <div id="main-wrapper" className="page-ready group bg-white min-h-screen text-[#121212]">
         <Navbar
           menuOpen={menuOpen}
           onMenuToggle={toggleMenu}
@@ -53,7 +54,9 @@ const BlogClient = () => {
         </div>
 
         <section className="relative flex flex-col items-center">
-          <div className="hero-description !relative !top-0 !left-0 !transform-none !opacity-100 pt-48 pb-20">
+          <HeroAnimation showGradient={false} showShadow={false} />
+          
+          <div className="hero-description !relative !top-0 !left-0 !transform-none !opacity-100 pt-48 pb-20 z-10">
             <div className="description-text">
               <h1 className="hero-main-title">
                 Blog
@@ -64,7 +67,7 @@ const BlogClient = () => {
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-8 pb-24">
+          <div className="max-w-7xl mx-auto px-8 pb-24 z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               <BlogCard
                 title="Mesas Serie 9"
