@@ -1,6 +1,7 @@
 import React from 'react';
 import LocationTag from '../LocationTag';
 import HeroAnimation from '../HeroAnimation';
+import Navbar from '../Navbar';
 
 interface HeroSectionProps {
   showLobby: boolean;
@@ -12,32 +13,12 @@ interface HeroSectionProps {
 export default function HeroSection({ showLobby, menuOpen, onMenuToggle, handleScrollTop }: HeroSectionProps) {
   return (
     <section id="hero" className="relative">
-      <header>
-        <div className="header-signature">
-          <a href="#hero" className="signature-link" onClick={handleScrollTop}>
-            <img
-              src="/graficos/datadafblanco.png"
-              alt="DATAdaf Logo - Consultoría de Ciencia de Datos y Metodología"
-              className="header-logo"
-              width={196}
-              height={55}
-              loading="eager"
-            />
-          </a>
-        </div>
-        <button
-          type="button"
-          className={`menu-toggle ${menuOpen ? 'open' : ''}`}
-          onClick={onMenuToggle}
-          aria-expanded={menuOpen}
-          aria-controls="site-menu"
-          aria-label={menuOpen ? 'Cerrar menu' : 'Abrir menu'}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </header>
+      <Navbar 
+        menuOpen={menuOpen} 
+        onMenuToggle={onMenuToggle} 
+        handleScrollTop={handleScrollTop}
+        pageReady={!showLobby}
+      />
 
       {!showLobby && <LocationTag />}
 
