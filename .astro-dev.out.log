@@ -78,3 +78,5 @@
 [vite] program reload
 [2m13:47:24[22m [34m[watch][39m /src/pages/blog/mesas-serie-9.astro?astro&type=style&index=0&lang.css, /src/styles/global.css
 [2m13:48:30[22m [34m[watch][39m /src/pages/blog/mesas-serie-9.astro?astro&type=style&index=0&lang.css, /src/styles/global.css
+[vite] program reload
+[2m13:53:25[22m [34m[200][39m /blog/mesas-serie-9 [2m231ms[22m
