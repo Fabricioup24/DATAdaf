@@ -492,35 +492,37 @@ const MapContainer = ({
         </div>
 
         <div className="serie9-map__controls">
-          <div className="serie9-map__basemap" aria-label="Cambiar capa base del mapa">
-            <button
-              type="button"
-              className={basemapMode === 'croquis' ? 'is-active' : ''}
-              onClick={() => setBasemapMode('croquis')}
-            >
-              Croquis
-            </button>
-            <button
-              type="button"
-              className={basemapMode === 'satelite' ? 'is-active' : ''}
-              onClick={() => setBasemapMode('satelite')}
-            >
-              Satelite
-            </button>
-          </div>
-
-          <div className="serie9-map__filters" aria-label="Filtrar por precisión">
-            {PRECISION_OPTIONS.map((precision) => (
+          <div className="serie9-map__control-stack">
+            <div className="serie9-map__basemap" aria-label="Cambiar capa base del mapa">
               <button
-                key={precision}
                 type="button"
-                className={selectedPrecisions.has(precision) ? 'is-active' : ''}
-                onClick={() => togglePrecision(precision)}
+                className={basemapMode === 'croquis' ? 'is-active' : ''}
+                onClick={() => setBasemapMode('croquis')}
               >
-                <span style={{ backgroundColor: PRECISION_META[precision].color }} />
-                {PRECISION_META[precision].label}
+                Croquis
               </button>
-            ))}
+              <button
+                type="button"
+                className={basemapMode === 'satelite' ? 'is-active' : ''}
+                onClick={() => setBasemapMode('satelite')}
+              >
+                Satelite
+              </button>
+            </div>
+
+            <div className="serie9-map__filters" aria-label="Filtrar por precisión">
+              {PRECISION_OPTIONS.map((precision) => (
+                <button
+                  key={precision}
+                  type="button"
+                  className={selectedPrecisions.has(precision) ? 'is-active' : ''}
+                  onClick={() => togglePrecision(precision)}
+                >
+                  <span style={{ backgroundColor: PRECISION_META[precision].color }} />
+                  {PRECISION_META[precision].label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="serie9-map__legend" aria-label="Como leer el mapa">
