@@ -113,19 +113,19 @@ const createSelectedFeatureCollection = (
   type: 'FeatureCollection',
   features: local
     ? [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: local.coordinates,
-          },
-          properties: {
-            id: local.id,
-            mesaCount: local.mesas.length,
-            precisionCoord: local.precisionCoord,
-          },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: local.coordinates,
         },
-      ]
+        properties: {
+          id: local.id,
+          mesaCount: local.mesas.length,
+          precisionCoord: local.precisionCoord,
+        },
+      },
+    ]
     : [],
 });
 
@@ -376,6 +376,16 @@ const createPopupContent = (local: VotingLocal): HTMLElement => {
     remaining.textContent = `+ ${local.mesas.length - 24} mesas adicionales`;
     root.appendChild(remaining);
   }
+
+  const actions = document.createElement('div');
+  actions.className = 'serie9-popup__actions';
+
+  const zoomButton = document.createElement('button');
+  zoomButton.type = 'button';
+  zoomButton.className = 'serie9-popup__zoom-button';
+  zoomButton.textContent = 'Acercar';
+  actions.appendChild(zoomButton);
+  root.appendChild(actions);
 
   const tooltip = document.createElement('div');
   tooltip.className = 'serie9-popup__tooltip';
@@ -697,13 +707,25 @@ const MapContainer = ({
       activePopup.current?.remove();
       setSelectedLocal(mapInstance, local);
 
+      const popupContent = createPopupContent(local);
+      const zoomButton = popupContent.querySelector('.serie9-popup__zoom-button');
+      zoomButton?.addEventListener('click', () => {
+        mapInstance.flyTo({
+          center: local.coordinates,
+          zoom: Math.max(mapInstance.getZoom(), 16.5),
+          speed: 1.15,
+          curve: 1.42,
+          essential: true,
+        });
+      });
+
       const popup = new maplibregl.Popup({
         closeButton: true,
         maxWidth: '360px',
         offset: 18,
       })
         .setLngLat(local.coordinates)
-        .setDOMContent(createPopupContent(local))
+        .setDOMContent(popupContent)
         .addTo(mapInstance);
 
       popup.on('close', () => {
@@ -762,17 +784,17 @@ const MapContainer = ({
           {
             padding: isCompactViewport
               ? {
-                  top: 24,
-                  right: 14,
-                  bottom: 34,
-                  left: 14,
-                }
+                top: 24,
+                right: 14,
+                bottom: 34,
+                left: 14,
+              }
               : {
-                  top: 40,
-                  right: 28,
-                  bottom: 52,
-                  left: 28,
-                },
+                top: 40,
+                right: 28,
+                bottom: 52,
+                left: 28,
+              },
             duration: 0,
             maxZoom: isCompactViewport ? 5.15 : 5.2,
           },

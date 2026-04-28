@@ -4925,6 +4925,30 @@ header {
     font-weight: 800;
 }
 
+.serie9-popup__actions {
+    margin-top: 0.9rem;
+}
+
+.serie9-popup__zoom-button {
+    width: 100%;
+    min-height: 2.5rem;
+    border: 0;
+    border-radius: 0.8rem;
+    background: #121212;
+    color: #ffffff;
+    font-size: 0.74rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.serie9-popup__zoom-button:hover {
+    transform: translateY(-1px);
+    opacity: 0.94;
+}
+
 .serie9-popup__tooltip {
     margin-top: 0.9rem;
     padding: 0.75rem 0.85rem;
