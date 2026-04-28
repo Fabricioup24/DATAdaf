@@ -75,7 +75,7 @@ const BlogClient = () => {
                 date="27 de Abril, 2026"
                 category="metodologia"
                 slug="mesas-serie-9"
-                imageUrl="https://images.unsplash.com/photo-1518433278988-d9bcda95634a?q=80&w=1000&auto=format&fit=crop"
+                imageUrl="/graficos/portada_geolocalizacion_serie_900.webp"
                 variant="light"
               />
 
