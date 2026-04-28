@@ -3369,11 +3369,11 @@ section {
         top: auto;
         right: auto;
         transform: scale(1) translateY(0);
-        margin-top: 4rem;
+        margin-top: 3.25rem;
         /* Aumentamos el margen para que la burbuja se quede abajo mientras el texto sube */
-        width: 140px;
+        width: 128px;
         /* Tamaño ligeramente más pequeño para control del espacio */
-        height: 140px;
+        height: 128px;
         z-index: 100;
         pointer-events: auto;
     }
@@ -3420,7 +3420,7 @@ section {
     }
 
     .about-bubble span {
-        font-size: 1.2rem;
+        font-size: 1.08rem;
     }
 
     .about-content {

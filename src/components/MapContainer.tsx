@@ -68,6 +68,8 @@ type BasemapMode = 'croquis' | 'satelite';
 const SOURCE_ID = 'serie9-locales-source';
 const LAYER_ID = 'serie9-locales-layer';
 const OUTLINE_LAYER_ID = 'serie9-locales-outline-layer';
+const SELECTED_SOURCE_ID = 'serie9-local-seleccionado-source';
+const SELECTED_HALO_LAYER_ID = 'serie9-local-seleccionado-halo-layer';
 const PRECISION_OPTIONS: PrecisionCoord[] = ['ALTA', 'MEDIA', 'APROXIMADA', 'REVISAR'];
 const CROQUIS_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
@@ -109,6 +111,28 @@ const EMPTY_FEATURE_COLLECTION: GeoJSON.FeatureCollection<GeoJSON.Point> = {
   type: 'FeatureCollection',
   features: [],
 };
+
+const createSelectedFeatureCollection = (
+  local: VotingLocal | null,
+): GeoJSON.FeatureCollection<GeoJSON.Point> => ({
+  type: 'FeatureCollection',
+  features: local
+    ? [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: local.coordinates,
+          },
+          properties: {
+            id: local.id,
+            mesaCount: local.mesas.length,
+            precisionCoord: local.precisionCoord,
+          },
+        },
+      ]
+    : [],
+});
 
 const parseCsv = (text: string): string[][] => {
   const rows: string[][] = [];
@@ -426,6 +450,8 @@ const MapContainer = ({
   const activePopup = useRef<maplibregl.Popup | null>(null);
   const localsById = useRef<Map<string, VotingLocal>>(new Map());
   const featureCollectionRef = useRef<GeoJSON.FeatureCollection<GeoJSON.Point>>(EMPTY_FEATURE_COLLECTION);
+  const selectedLocalRef = useRef<VotingLocal | null>(null);
+  const pulseFrameRef = useRef<number | null>(null);
   const lenisResumeTimeout = useRef<number | null>(null);
   const hasAppliedInitialView = useRef(false);
   const [locals, setLocals] = useState<VotingLocal[]>([]);
@@ -498,6 +524,59 @@ const MapContainer = ({
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
+
+    const stopSelectionPulse = () => {
+      if (pulseFrameRef.current !== null) {
+        window.cancelAnimationFrame(pulseFrameRef.current);
+        pulseFrameRef.current = null;
+      }
+    };
+
+    const syncSelectedSource = (mapInstance: maplibregl.Map, local: VotingLocal | null) => {
+      const selectedSource = mapInstance.getSource(SELECTED_SOURCE_ID) as
+        | maplibregl.GeoJSONSource
+        | undefined;
+
+      if (selectedSource) {
+        selectedSource.setData(createSelectedFeatureCollection(local));
+      }
+    };
+
+    const startSelectionPulse = (mapInstance: maplibregl.Map) => {
+      stopSelectionPulse();
+
+      const animatePulse = (timestamp: number) => {
+        if (!mapInstance.getLayer(SELECTED_HALO_LAYER_ID) || !selectedLocalRef.current) {
+          pulseFrameRef.current = null;
+          return;
+        }
+
+        const wave = (Math.sin(timestamp / 260) + 1) / 2;
+        const haloRadius = 15 + wave * 9;
+        const haloOpacity = 0.18 + wave * 0.26;
+
+        mapInstance.setPaintProperty(SELECTED_HALO_LAYER_ID, 'circle-radius', haloRadius);
+        mapInstance.setPaintProperty(
+          SELECTED_HALO_LAYER_ID,
+          'circle-stroke-opacity',
+          haloOpacity,
+        );
+        pulseFrameRef.current = window.requestAnimationFrame(animatePulse);
+      };
+
+      pulseFrameRef.current = window.requestAnimationFrame(animatePulse);
+    };
+
+    const setSelectedLocal = (mapInstance: maplibregl.Map, local: VotingLocal | null) => {
+      selectedLocalRef.current = local;
+      syncSelectedSource(mapInstance, local);
+
+      if (local) {
+        startSelectionPulse(mapInstance);
+      } else {
+        stopSelectionPulse();
+      }
+    };
 
     const ensureDataLayers = (mapInstance: maplibregl.Map) => {
       const source = mapInstance.getSource(SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
@@ -576,6 +655,39 @@ const MapContainer = ({
           },
         });
       }
+
+      const selectedSource = mapInstance.getSource(SELECTED_SOURCE_ID) as
+        | maplibregl.GeoJSONSource
+        | undefined;
+
+      if (!selectedSource) {
+        mapInstance.addSource(SELECTED_SOURCE_ID, {
+          type: 'geojson',
+          data: createSelectedFeatureCollection(selectedLocalRef.current),
+        });
+      } else {
+        selectedSource.setData(createSelectedFeatureCollection(selectedLocalRef.current));
+      }
+
+      if (!mapInstance.getLayer(SELECTED_HALO_LAYER_ID)) {
+        mapInstance.addLayer({
+          id: SELECTED_HALO_LAYER_ID,
+          type: 'circle',
+          source: SELECTED_SOURCE_ID,
+          paint: {
+            'circle-radius': 18,
+            'circle-color': 'rgba(255, 255, 255, 0)',
+            'circle-opacity': 0,
+            'circle-stroke-color': '#2563eb',
+            'circle-stroke-opacity': 0.32,
+            'circle-stroke-width': 2.2,
+          },
+        }, LAYER_ID);
+      }
+
+      if (selectedLocalRef.current) {
+        startSelectionPulse(mapInstance);
+      }
     };
 
     const handleMouseEnter = () => {
@@ -586,15 +698,11 @@ const MapContainer = ({
       mapInstance.getCanvas().style.cursor = '';
     };
 
-    const handlePointClick = (event: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
-      const feature = event.features?.[0];
-      const localId = feature?.properties?.id;
-      const local = typeof localId === 'string' ? localsById.current.get(localId) : null;
-
-      if (!local) return;
-
+    const openLocalPopup = (mapInstance: maplibregl.Map, local: VotingLocal) => {
       activePopup.current?.remove();
-      activePopup.current = new maplibregl.Popup({
+      setSelectedLocal(mapInstance, local);
+
+      const popup = new maplibregl.Popup({
         closeButton: true,
         maxWidth: '360px',
         offset: 18,
@@ -602,6 +710,23 @@ const MapContainer = ({
         .setLngLat(local.coordinates)
         .setDOMContent(createPopupContent(local))
         .addTo(mapInstance);
+
+      popup.on('close', () => {
+        activePopup.current = null;
+        setSelectedLocal(mapInstance, null);
+      });
+
+      activePopup.current = popup;
+    };
+
+    const handlePointClick = (event: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
+      const feature = event.features?.[0];
+      const localId = feature?.properties?.id;
+      const local = typeof localId === 'string' ? localsById.current.get(localId) : null;
+
+      if (!local) return;
+
+      openLocalPopup(mapInstance, local);
     };
 
     const mapInstance = new maplibregl.Map({
@@ -673,6 +798,7 @@ const MapContainer = ({
       mapInstance.off('mouseleave', LAYER_ID, handleMouseLeave);
       mapInstance.off('click', LAYER_ID, handlePointClick);
       mapInstance.remove();
+      stopSelectionPulse();
       map.current = null;
     };
   }, [initialCenter, initialZoom]);
