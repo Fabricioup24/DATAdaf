@@ -75,27 +75,22 @@ const CROQUIS_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
-    satellite: {
+    'raster-tiles': {
       type: 'raster',
       tiles: [
-        'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg',
+        'https://mt0.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        'https://mt2.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        'https://mt3.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
       ],
       tileSize: 256,
-      attribution:
-        'Sentinel-2 cloudless by EOX IT Services GmbH (Contains modified Copernicus Sentinel data)',
     },
   },
   layers: [
     {
-      id: 'satellite',
+      id: 'raster-layer',
       type: 'raster',
-      source: 'satellite',
-      paint: {
-        'raster-saturation': 0.05,
-        'raster-contrast': 0.18,
-        'raster-brightness-min': 0,
-        'raster-brightness-max': 0.98,
-      },
+      source: 'raster-tiles',
     },
   ],
 };
