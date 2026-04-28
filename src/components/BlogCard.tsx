@@ -16,6 +16,8 @@ interface BlogCardProps {
   category?: LabelCategory;
   /** Visual variant of the card */
   variant?: 'light' | 'dark';
+  /** Optional explicit slug to avoid deriving the route from the title */
+  slug?: string;
 }
 
 /**
@@ -24,8 +26,17 @@ interface BlogCardProps {
  * @param {BlogCardProps} props - The component props
  * @returns {JSX.Element} The rendered BlogCard
  */
-const BlogCard = ({ title, excerpt, date, imageUrl, category = 'analisis', variant = 'dark' }: BlogCardProps) => {
+const BlogCard = ({
+  title,
+  excerpt,
+  date,
+  imageUrl,
+  category = 'analisis',
+  variant = 'dark',
+  slug,
+}: BlogCardProps) => {
   const isLight = variant === 'light';
+  const href = `/blog/${slug ?? title.toLowerCase().replace(/\s+/g, '-')}`;
   
   return (
     <article className={`group relative overflow-hidden rounded-3xl transition-all duration-500 hover:translate-y-[-12px] 
@@ -61,7 +72,7 @@ const BlogCard = ({ title, excerpt, date, imageUrl, category = 'analisis', varia
         </p>
         
         <a 
-          href={`/blog/${title.toLowerCase().replace(/\s+/g, '-')}`} 
+          href={href}
           className={`inline-flex items-center gap-3 font-black text-xs uppercase tracking-widest group/link
             ${isLight ? 'text-[#121212]' : 'text-white'}`}
         >

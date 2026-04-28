@@ -55,7 +55,7 @@ const BlogClient = () => {
 
         <section className="relative flex flex-col items-center">
           <HeroAnimation showGradient={false} showShadow={false} />
-          
+
           <div className="hero-description !relative !top-0 !left-0 !transform-none !opacity-100 pt-48 pb-20 z-10">
             <div className="description-text">
               <h1 className="hero-main-title">
@@ -70,10 +70,11 @@ const BlogClient = () => {
           <div className="max-w-7xl mx-auto px-8 pb-24 z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               <BlogCard
-                title="Mesas Serie 9"
-                excerpt="Un análisis profundo sobre la arquitectura de datos y optimización de procesos en la nueva generación de infraestructura para el procesamiento masivo."
+                title="Ubicación de las mesas de la serie 900"
+                excerpt="Geolocalización y análisis territorial de los locales de votación asociados a la serie 900."
                 date="27 de Abril, 2026"
                 category="metodologia"
+                slug="mesas-serie-9"
                 imageUrl="https://images.unsplash.com/photo-1518433278988-d9bcda95634a?q=80&w=1000&auto=format&fit=crop"
                 variant="light"
               />
