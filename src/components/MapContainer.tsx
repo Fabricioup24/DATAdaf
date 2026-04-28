@@ -47,6 +47,19 @@ interface MapContainerProps {
   initialZoom?: number;
   /** Height of the map container. */
   height?: string;
+  /** Optional max bounds to constrain the visible area. */
+  maxBounds?: [[number, number], [number, number]];
+}
+
+type LenisController = {
+  start?: () => void;
+  stop?: () => void;
+};
+
+declare global {
+  interface Window {
+    lenis?: LenisController;
+  }
 }
 
 type CsvRow = Record<string, string>;
@@ -266,6 +279,13 @@ const aggregateRows = (rows: CsvRow[]): { locals: VotingLocal[]; stats: MapStats
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('es-PE').format(value);
 
+const TOOLTIP_ICON = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
+    <title>tooltip-start-alert</title>
+    <path fill="currentColor" d="M8 15h2v-2H8zm0-3h2V7H8zM1 2v18h1v1h14v-1h1v-5h1v-1h1v-1h1v-1h1v-2h-1V9h-1V8h-1V7h-1V2h-1V1H2v1zm2 1h12v5h1v1h1v1h1v2h-1v1h-1v1h-1v5H3z"/>
+  </svg>
+`;
+
 const createPopupContent = (local: VotingLocal): HTMLElement => {
   const root = document.createElement('div');
   root.className = 'serie9-popup';
@@ -338,6 +358,31 @@ const createPopupContent = (local: VotingLocal): HTMLElement => {
     root.appendChild(remaining);
   }
 
+  const tooltip = document.createElement('div');
+  tooltip.className = 'serie9-popup__tooltip';
+
+  const tooltipHeader = document.createElement('div');
+  tooltipHeader.className = 'serie9-popup__tooltip-header';
+
+  const tooltipIcon = document.createElement('span');
+  tooltipIcon.className = 'serie9-popup__tooltip-icon';
+  tooltipIcon.innerHTML = TOOLTIP_ICON;
+  tooltipHeader.appendChild(tooltipIcon);
+
+  const tooltipTitle = document.createElement('strong');
+  tooltipTitle.textContent = 'Como leer este punto';
+  tooltipHeader.appendChild(tooltipTitle);
+  tooltip.appendChild(tooltipHeader);
+
+  const tooltipBody = document.createElement('div');
+  tooltipBody.className = 'serie9-popup__tooltip-body';
+  tooltipBody.innerHTML = `
+    <p><strong>Score</strong>: resume la fuerza de la coincidencia en SIGMED. Un valor mas alto suele indicar mejor consistencia entre codigo, nombre, centro poblado y fuente GPS. En otros terminos, es como si el sistema dijera: "este local si se parece bastante al que buscamos".</p>
+    <p><strong>ALTA</strong>: local compatible por codigo o nombre y contexto geografico. <strong>MEDIA</strong>: buena coincidencia con diferencias menores. <strong>APROXIMADA</strong>: punto util de la zona, no necesariamente del local exacto. <strong>REVISAR</strong>: requiere verificacion manual.</p>
+  `;
+  tooltip.appendChild(tooltipBody);
+  root.appendChild(tooltip);
+
   return root;
 };
 
@@ -370,13 +415,18 @@ const MapContainer = ({
   dataUrl = '/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv',
   initialCenter = [-75.0152, -9.19],
   initialZoom = 5,
-  height = '680px',
+  height = '860px',
+  maxBounds = [
+    [-84.5, -19.5],
+    [-67.0, 1.5],
+  ],
 }: MapContainerProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const activePopup = useRef<maplibregl.Popup | null>(null);
   const localsById = useRef<Map<string, VotingLocal>>(new Map());
   const featureCollectionRef = useRef<GeoJSON.FeatureCollection<GeoJSON.Point>>(EMPTY_FEATURE_COLLECTION);
+  const lenisResumeTimeout = useRef<number | null>(null);
   const [locals, setLocals] = useState<VotingLocal[]>([]);
   const [stats, setStats] = useState<MapStats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -559,6 +609,7 @@ const MapContainer = ({
       center: initialCenter,
       zoom: initialZoom,
       attributionControl: true,
+      maxBounds,
     });
 
     map.current = mapInstance;
@@ -576,6 +627,22 @@ const MapContainer = ({
     const handleStyleReady = () => {
       ensureDataLayers(mapInstance);
       bindPointInteractions();
+      mapInstance.fitBounds(
+        [
+          [-81.5, -18.75],
+          [-68.0, -0.05],
+        ],
+        {
+          padding: {
+            top: 40,
+            right: 28,
+            bottom: 52,
+            left: 28,
+          },
+          duration: 0,
+          maxZoom: 6.2,
+        },
+      );
       setIsMapReady(true);
     };
 
@@ -592,6 +659,47 @@ const MapContainer = ({
       map.current = null;
     };
   }, [initialCenter, initialZoom]);
+
+  useEffect(() => {
+    const container = mapContainer.current;
+    if (!container || typeof window === 'undefined') return;
+
+    const clearLenisResumeTimeout = () => {
+      if (lenisResumeTimeout.current !== null) {
+        window.clearTimeout(lenisResumeTimeout.current);
+        lenisResumeTimeout.current = null;
+      }
+    };
+
+    const pauseLenis = () => {
+      window.lenis?.stop?.();
+      clearLenisResumeTimeout();
+      lenisResumeTimeout.current = window.setTimeout(() => {
+        window.lenis?.start?.();
+        lenisResumeTimeout.current = null;
+      }, 180);
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      pauseLenis();
+    };
+
+    const handlePointerLeave = () => {
+      clearLenisResumeTimeout();
+      window.lenis?.start?.();
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    container.addEventListener('mouseleave', handlePointerLeave);
+
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      container.removeEventListener('mouseleave', handlePointerLeave);
+      clearLenisResumeTimeout();
+      window.lenis?.start?.();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isMapReady || !map.current) return;
@@ -621,6 +729,11 @@ const MapContainer = ({
       }
       return next.size > 0 ? next : current;
     });
+  };
+
+  const handleMapWheelCapture = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (!map.current) return;
+    event.preventDefault();
   };
 
   return (
@@ -677,6 +790,8 @@ const MapContainer = ({
         ref={mapContainer}
         style={{ height }}
         className="serie9-map__canvas w-full bg-gray-100"
+        data-lenis-prevent
+        onWheelCapture={handleMapWheelCapture}
       />
 
       {(isLoading || error) && (

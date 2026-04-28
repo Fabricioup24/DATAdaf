@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar';
 import MapContainer from '../../components/MapContainer';
+import MethodologySheet from '../../components/MethodologySheet';
 import Labels from '../../components/labels';
 ---
 
@@ -65,29 +66,21 @@ import Labels from '../../components/labels';
           </div>
 
           <!-- Map Implementation -->
-          <div class="my-12">
+          <div class="my-12 relative left-1/2 w-screen max-w-[min(92rem,calc(100vw-3rem))] -translate-x-1/2 px-6">
             <h2 class="text-2xl font-black mb-6 uppercase tracking-widest">Mapa de Ubicaciones</h2>
             <MapContainer 
               client:load 
               dataUrl="/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv"
               initialCenter={[-75.0152, -9.19]}
               initialZoom={5}
+              height="860px"
             />
             <p class="mt-4 text-sm text-[#121212]/40 italic">
               * El mapa muestra locales de votación con coordenadas SIGMED/MINEDU; cada punto agrupa sus mesas asociadas.
             </p>
           </div>
 
-          <div class="prose prose-lg max-w-none">
-            <h3 class="text-3xl font-black mt-12 mb-6">Arquitectura de Datos y Procesamiento</h3>
-            <p>
-              El procesamiento masivo de información requiere una infraestructura robusta. En este artículo detallamos cómo la nueva arquitectura permite filtrar, organizar y visualizar miles de puntos de datos en tiempo real, facilitando la toma de decisiones basada en evidencia geográfica.
-            </p>
-            <div class="glass-card p-8 my-8">
-              <p class="font-bold text-blue-900 m-0">Próximamente:</p>
-              <p class="m-0 text-blue-800/80">Integración de datos en tiempo real y análisis de densidad por distrito.</p>
-            </div>
-          </div>
+          <MethodologySheet client:load />
         </section>
 
         <footer class="border-t border-gray-100 pt-12 mt-24">
