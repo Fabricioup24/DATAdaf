@@ -427,6 +427,7 @@ const MapContainer = ({
   const localsById = useRef<Map<string, VotingLocal>>(new Map());
   const featureCollectionRef = useRef<GeoJSON.FeatureCollection<GeoJSON.Point>>(EMPTY_FEATURE_COLLECTION);
   const lenisResumeTimeout = useRef<number | null>(null);
+  const hasAppliedInitialView = useRef(false);
   const [locals, setLocals] = useState<VotingLocal[]>([]);
   const [stats, setStats] = useState<MapStats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -627,22 +628,27 @@ const MapContainer = ({
     const handleStyleReady = () => {
       ensureDataLayers(mapInstance);
       bindPointInteractions();
-      mapInstance.fitBounds(
-        [
-          [-81.5, -18.75],
-          [-68.0, -0.05],
-        ],
-        {
-          padding: {
-            top: 40,
-            right: 28,
-            bottom: 52,
-            left: 28,
+
+      if (!hasAppliedInitialView.current) {
+        mapInstance.fitBounds(
+          [
+            [-81.5, -18.75],
+            [-68.0, -0.05],
+          ],
+          {
+            padding: {
+              top: 40,
+              right: 28,
+              bottom: 52,
+              left: 28,
+            },
+            duration: 0,
+            maxZoom: 6.2,
           },
-          duration: 0,
-          maxZoom: 6.2,
-        },
-      );
+        );
+        hasAppliedInitialView.current = true;
+      }
+
       setIsMapReady(true);
     };
 

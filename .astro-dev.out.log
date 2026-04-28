@@ -73,3 +73,7 @@
 [vite] program reload
 [vite] program reload
 [vite] program reload
+[2m13:45:27[22m [34m[watch][39m /src/styles/global.css, /src/components/MapContainer.tsx
+[2m13:45:27[22m [34m[watch][39m src/components/MapContainer.tsx
+[vite] program reload
+[2m13:47:24[22m [34m[watch][39m /src/pages/blog/mesas-serie-9.astro?astro&type=style&index=0&lang.css, /src/styles/global.css
