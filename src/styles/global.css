@@ -4744,7 +4744,7 @@ header {
 }
 
 .serie9-map__canvas {
-    min-height: 420px;
+    min-height: 560px;
     overscroll-behavior: contain;
 }
 

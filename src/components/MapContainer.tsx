@@ -417,8 +417,8 @@ const MapContainer = ({
   initialZoom = 5,
   height = '860px',
   maxBounds = [
-    [-84.5, -19.5],
-    [-67.0, 1.5],
+    [-92.0, -24.5],
+    [-58.0, 8.5],
   ],
 }: MapContainerProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -610,7 +610,7 @@ const MapContainer = ({
       center: initialCenter,
       zoom: initialZoom,
       attributionControl: true,
-      minZoom: 4,
+      minZoom: 2.2,
       maxBounds,
     });
 
@@ -636,8 +636,8 @@ const MapContainer = ({
         const isCompactViewport = window.matchMedia('(max-width: 720px)').matches;
         mapInstance.fitBounds(
           [
-            [-81.5, -18.75],
-            [-68.0, -0.05],
+            [-84.75, -21.5],
+            [-65.5, 2.4],
           ],
           {
             padding: isCompactViewport
@@ -654,7 +654,7 @@ const MapContainer = ({
                   left: 28,
                 },
             duration: 0,
-            maxZoom: isCompactViewport ? 5.45 : 6.2,
+            maxZoom: isCompactViewport ? 5.15 : 5.2,
           },
         );
         hasAppliedInitialView.current = true;

@@ -66,14 +66,14 @@ import Labels from '../../components/labels';
           </div>
 
           <!-- Map Implementation -->
-          <div class="my-10 md:my-12 relative left-1/2 w-screen max-w-[min(92rem,calc(100vw-2rem))] sm:max-w-[min(92rem,calc(100vw-3rem))] -translate-x-1/2 px-0 sm:px-6">
+          <div class="my-10 md:my-12 relative left-1/2 w-screen max-w-[min(98rem,calc(100vw-0.5rem))] -translate-x-1/2 px-0 sm:px-2 md:px-4">
             <h2 class="text-xl sm:text-2xl font-black mb-5 md:mb-6 uppercase tracking-widest">Mapa de Ubicaciones</h2>
             <MapContainer 
               client:load 
               dataUrl="/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv"
               initialCenter={[-75.0152, -9.19]}
               initialZoom={5}
-              height="clamp(540px, 78vh, 860px)"
+              height="clamp(620px, 84vh, 980px)"
             />
             <p class="mt-4 text-sm text-[#121212]/40 italic">
               * El mapa muestra locales de votación con coordenadas SIGMED/MINEDU; cada punto agrupa sus mesas asociadas.
