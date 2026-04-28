@@ -4667,6 +4667,38 @@ header {
     justify-content: flex-end;
 }
 
+.serie9-map__legend {
+    max-width: 20rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(18, 18, 18, 0.08);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.92);
+    color: rgba(18, 18, 18, 0.72);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.serie9-map__legend-title {
+    margin: 0 0 0.28rem;
+    color: #121212;
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.serie9-map__legend-copy,
+.serie9-map__legend-note {
+    margin: 0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.serie9-map__legend-note {
+    margin-top: 0.45rem;
+    color: rgba(18, 18, 18, 0.56);
+}
+
 .serie9-map__basemap {
     display: inline-flex;
     align-items: center;
@@ -4999,6 +5031,11 @@ header {
     .serie9-map__controls {
         justify-content: flex-start;
         gap: 0.6rem;
+    }
+
+    .serie9-map__legend {
+        max-width: none;
+        width: 100%;
     }
 
     .serie9-map__basemap {
