@@ -610,10 +610,13 @@ const MapContainer = ({
       center: initialCenter,
       zoom: initialZoom,
       attributionControl: true,
+      minZoom: 4,
       maxBounds,
     });
 
     map.current = mapInstance;
+    mapInstance.scrollZoom.setWheelZoomRate(1 / 300);
+    mapInstance.scrollZoom.setZoomRate(1 / 80);
     mapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     const bindPointInteractions = () => {
@@ -630,20 +633,28 @@ const MapContainer = ({
       bindPointInteractions();
 
       if (!hasAppliedInitialView.current) {
+        const isCompactViewport = window.matchMedia('(max-width: 720px)').matches;
         mapInstance.fitBounds(
           [
             [-81.5, -18.75],
             [-68.0, -0.05],
           ],
           {
-            padding: {
-              top: 40,
-              right: 28,
-              bottom: 52,
-              left: 28,
-            },
+            padding: isCompactViewport
+              ? {
+                  top: 24,
+                  right: 14,
+                  bottom: 34,
+                  left: 14,
+                }
+              : {
+                  top: 40,
+                  right: 28,
+                  bottom: 52,
+                  left: 28,
+                },
             duration: 0,
-            maxZoom: 6.2,
+            maxZoom: isCompactViewport ? 5.45 : 6.2,
           },
         );
         hasAppliedInitialView.current = true;

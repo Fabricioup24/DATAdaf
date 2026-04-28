@@ -53,10 +53,10 @@ const BlogClient = () => {
           </nav>
         </div>
 
-        <section className="relative flex flex-col items-center">
+        <section className="blog-index-section relative flex flex-col items-center">
           <HeroAnimation showGradient={false} showShadow={false} />
 
-          <div className="hero-description !relative !top-0 !left-0 !transform-none !opacity-100 pt-48 pb-20 z-10">
+          <div className="blog-hero-description z-10">
             <div className="description-text">
               <h1 className="hero-main-title">
                 Blog
@@ -67,7 +67,7 @@ const BlogClient = () => {
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-8 pb-24 z-10">
+          <div className="blog-grid-shell max-w-7xl mx-auto px-8 pb-24 z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               <BlogCard
                 title="Ubicación de las mesas de la serie 900"

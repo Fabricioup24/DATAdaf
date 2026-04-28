@@ -4601,6 +4601,26 @@ header {
 
 /* --- Blog & Map Premium Styles --- */
 
+.blog-index-section {
+    justify-content: flex-start;
+    min-height: auto;
+}
+
+.blog-hero-description {
+    position: relative;
+    width: 100%;
+    padding: clamp(8.25rem, 18vw, 12rem) 2rem 5rem;
+    opacity: 1;
+}
+
+.blog-hero-description .description-text {
+    margin: 0 auto;
+}
+
+.blog-grid-shell {
+    width: 100%;
+}
+
 .map-premium-wrapper {
     position: relative;
     border-radius: 2rem;
@@ -4909,17 +4929,66 @@ header {
 }
 
 @media (max-width: 720px) {
+    .blog-hero-description {
+        padding: 7.5rem 1.25rem 2.5rem;
+    }
+
+    .blog-hero-description .hero-main-title {
+        font-size: 2.75rem;
+        line-height: 1;
+    }
+
+    .blog-hero-description .hero-main-subtitle {
+        max-width: 18rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .blog-grid-shell {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+        padding-bottom: 4rem !important;
+    }
+
+    .blog-grid-shell .grid {
+        gap: 2rem;
+    }
+
+    .map-premium-wrapper {
+        border-radius: 1.35rem;
+        box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.22);
+    }
+
+    .map-premium-wrapper:hover {
+        transform: none;
+    }
+
     .serie9-map__toolbar {
         align-items: stretch;
         flex-direction: column;
+        gap: 0.85rem;
+        padding: 0.9rem;
+    }
+
+    .serie9-map__stats {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.35rem 0.5rem;
+        font-size: 0.62rem;
+    }
+
+    .serie9-map__stats strong {
+        font-size: 0.84rem;
     }
 
     .serie9-map__filters {
         justify-content: flex-start;
+        gap: 0.45rem;
     }
 
     .serie9-map__controls {
         justify-content: flex-start;
+        gap: 0.6rem;
     }
 
     .serie9-map__basemap {
@@ -4930,11 +4999,35 @@ header {
     .serie9-map__basemap button {
         flex: 1 1 50%;
         justify-content: center;
+        font-size: 0.66rem;
     }
 
     .serie9-map__filters button {
         flex: 1 1 calc(50% - 0.5rem);
         justify-content: center;
+        min-height: 2.25rem;
+        padding: 0.35rem 0.45rem;
+        font-size: 0.66rem;
+    }
+
+    .serie9-map__canvas {
+        min-height: 540px;
+    }
+
+    .maplibregl-ctrl-top-right {
+        top: 0.5rem !important;
+        right: 0.5rem !important;
+    }
+
+    .serie9-popup {
+        width: min(19rem, 82vw);
+        max-height: 68vh;
+        overflow: auto;
+        padding: 0.85rem;
+    }
+
+    .serie9-popup__meta div {
+        grid-template-columns: 4rem minmax(0, 1fr);
     }
 }
 

@@ -39,7 +39,7 @@ const BlogCard = ({
   const href = `/blog/${slug ?? title.toLowerCase().replace(/\s+/g, '-')}`;
   
   return (
-    <article className={`group relative overflow-hidden rounded-3xl transition-all duration-500 hover:translate-y-[-12px] 
+    <article className={`group relative overflow-hidden rounded-[1.35rem] md:rounded-3xl transition-all duration-500 hover:translate-y-[-12px] 
       ${isLight 
         ? 'bg-white border border-[#121212]/5 hover:border-[#121212]/10 hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)]' 
         : 'bg-[#1a1a1a] border border-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]'}`}>
@@ -55,18 +55,18 @@ const BlogCard = ({
         </div>
       )}
       
-      <div className="p-10">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="p-6 sm:p-8 md:p-10">
+        <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-5 md:mb-6">
           <Labels category={category} className="!px-4 !py-1 !text-[10px]" />
           <time className={`text-xs font-bold ${isLight ? 'text-[#121212]/30' : 'text-white/40'}`}>{date}</time>
         </div>
         
-        <h3 className={`text-3xl font-black mb-6 leading-[1.1] tracking-tight transition-colors 
+        <h3 className={`text-[1.85rem] md:text-3xl font-black mb-5 md:mb-6 leading-[1.1] tracking-tight transition-colors 
           ${isLight ? 'text-[#121212] group-hover:text-blue-600' : 'text-white group-hover:text-blue-400'}`}>
           {title}
         </h3>
         
-        <p className={`text-base leading-relaxed mb-8 font-medium
+        <p className={`text-[0.95rem] md:text-base leading-relaxed mb-7 md:mb-8 font-medium
           ${isLight ? 'text-[#121212]/50' : 'text-white/60'}`}>
           {excerpt}
         </p>
