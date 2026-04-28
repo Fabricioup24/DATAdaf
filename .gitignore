@@ -26,3 +26,4 @@ pnpm-debug.log*
 
 # virtual environment
 datadaf/
+.astro-dev.err.log
