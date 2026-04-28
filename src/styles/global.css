@@ -4617,6 +4617,16 @@ header {
     margin: 0 auto;
 }
 
+.blog-hero-description .hero-main-title,
+.blog-hero-description .hero-main-subtitle {
+    animation-duration: 8s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blog-hero-description .hero-main-subtitle {
+    animation-delay: 4s;
+}
+
 .blog-grid-shell {
     width: 100%;
 }
