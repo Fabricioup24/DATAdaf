@@ -3,25 +3,6 @@ import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar';
 import MapContainer from '../../components/MapContainer';
 import Labels from '../../components/labels';
-import type { VotingTable } from '../../components/MapContainer';
-
-// Sample data for the map (user will provide more later)
-const votingTables: VotingTable[] = [
-  {
-    id: 1,
-    mesa: "Mesa 0001",
-    address: "Colegio Nacional Nuestra Señora de Guadalupe, Lima",
-    coordinates: [-77.0428, -12.0464],
-    description: "Ubicada en el pabellón A, primer piso."
-  },
-  {
-    id: 2,
-    mesa: "Mesa 0002",
-    address: "Universidad Nacional Mayor de San Marcos, Lima",
-    coordinates: [-77.0841, -12.0573],
-    description: "Facultad de Ciencias Sociales."
-  }
-];
 ---
 
 <Layout 
@@ -88,11 +69,12 @@ const votingTables: VotingTable[] = [
             <h2 class="text-2xl font-black mb-6 uppercase tracking-widest">Mapa de Ubicaciones</h2>
             <MapContainer 
               client:load 
-              tables={votingTables} 
-              initialZoom={11}
+              dataUrl="/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv"
+              initialCenter={[-75.0152, -9.19]}
+              initialZoom={5}
             />
             <p class="mt-4 text-sm text-[#121212]/40 italic">
-              * El mapa muestra ubicaciones preliminares basadas en el cotejo de datos Serie 9.
+              * El mapa muestra locales de votación con coordenadas SIGMED/MINEDU; cada punto agrupa sus mesas asociadas.
             </p>
           </div>
 
