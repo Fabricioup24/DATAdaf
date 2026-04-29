@@ -1,6 +1,8 @@
 import type maplibregl from 'maplibre-gl';
 
 export type PrecisionCoord = 'ALTA' | 'MEDIA' | 'APROXIMADA' | 'REVISAR';
+export type UrbanRuralClassification = 'urbano' | 'rural';
+export type UrbanSubclass = 'urbano_central' | 'urbano_periferico';
 export type FixedPartyKey =
   | 'juntos_por_el_peru'
   | 'fuerza_popular'
@@ -17,6 +19,13 @@ export interface FixedPartyResult {
   share: number;
 }
 
+export interface PartyResult {
+  key: string;
+  label: string;
+  votes: number;
+  share: number;
+}
+
 export interface VoteExtras {
   blancoVotes: number;
   blancoShare: number;
@@ -26,12 +35,18 @@ export interface VoteExtras {
 
 export interface VoteSummary {
   parties: FixedPartyResult[];
+  allParties: PartyResult[];
   rankedParties: FixedPartyResult[];
   otrosVotes: number;
   otrosShare: number;
   extras: VoteExtras;
+  eligibleVoters: number;
   validVotes: number;
   emittedVotes: number;
+  abstentionVotes: number;
+  abstentionShare: number;
+  countedMesas: number;
+  pendingMesas: number;
   topParty: FixedPartyResult | null;
   secondParty: FixedPartyResult | null;
   marginVotes: number;
@@ -63,6 +78,8 @@ export interface VotingLocal {
   sigmedNombre: string;
   scoreCoord: string;
   requiereRevision: boolean;
+  clasificacionOficialUrbanoRural: UrbanRuralClassification | '';
+  subclasificacionUrbanaOficial: UrbanSubclass | '';
   results: VoteSummary;
   mesas: VotingMesa[];
 }

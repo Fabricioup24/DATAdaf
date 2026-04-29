@@ -1,6 +1,18 @@
 import { PRECISION_META } from './constants';
 import type { VotingLocal } from './types';
 
+const formatUrbanRuralLabel = (value: VotingLocal['clasificacionOficialUrbanoRural']) => {
+  if (value === 'urbano') return 'Urbano';
+  if (value === 'rural') return 'Rural';
+  return '';
+};
+
+const formatUrbanSubtypeLabel = (value: VotingLocal['subclasificacionUrbanaOficial']) => {
+  if (value === 'urbano_central') return 'Urbano central';
+  if (value === 'urbano_periferico') return 'Urbano periferico';
+  return '';
+};
+
 export const createPopupContent = (local: VotingLocal): HTMLElement => {
   const root = document.createElement('div');
   root.className = 'serie9-popup';
@@ -38,6 +50,13 @@ export const createPopupContent = (local: VotingLocal): HTMLElement => {
   [
     ['Local', local.numeroLocal],
     ['Mesas', String(local.mesas.length)],
+    ['Clasificacion', formatUrbanRuralLabel(local.clasificacionOficialUrbanoRural)],
+    [
+      'Subclasificacion urbana',
+      local.clasificacionOficialUrbanoRural === 'urbano'
+        ? formatUrbanSubtypeLabel(local.subclasificacionUrbanaOficial)
+        : '',
+    ],
   ].forEach(([label, value]) => {
     if (!value) return;
     const item = document.createElement('div');

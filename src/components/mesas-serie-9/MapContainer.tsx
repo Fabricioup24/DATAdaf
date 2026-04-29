@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 import {
   EMPTY_FEATURE_COLLECTION,
+  FIXED_PARTIES,
   LAYER_ID,
   OUTLINE_LAYER_ID,
   SELECTED_HALO_LAYER_ID,
@@ -12,6 +13,7 @@ import {
   getBasemapStyle,
 } from './constants';
 import {
+  aggregateVoteSummaries,
   aggregateRows,
   buildFeatureCollection,
   createSelectedFeatureCollection,
@@ -39,7 +41,7 @@ type MesaSearchResult = {
 };
 
 const MapContainer = ({
-  dataUrl = '/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv',
+  dataUrl = '/pdfs/01_base_4703_mesas_serie9_clasificacion_oficial_urbano_rural.csv',
   initialCenter = [-75.0152, -9.19],
   initialZoom = 5,
   height = '860px',
@@ -70,10 +72,14 @@ const MapContainer = ({
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvincia, setSelectedProvincia] = useState('');
   const [selectedDistrito, setSelectedDistrito] = useState('');
+  const [selectedUrbanRural, setSelectedUrbanRural] = useState('');
+  const [selectedUrbanSubtype, setSelectedUrbanSubtype] = useState('');
   const [mesaQuery, setMesaQuery] = useState('');
   const [mesaSuggestionsOpen, setMesaSuggestionsOpen] = useState(false);
   const [mesaError, setMesaError] = useState<string | null>(null);
   const [resultsLocal, setResultsLocal] = useState<VotingLocal | null>(null);
+  const [selectedPartyOne, setSelectedPartyOne] = useState('');
+  const [selectedPartyTwo, setSelectedPartyTwo] = useState('');
 
   const mesaSearchIndex = useMemo(
     () =>
@@ -150,9 +156,60 @@ const MapContainer = ({
         if (selectedRegion && local.region !== selectedRegion) return false;
         if (selectedProvincia && local.provincia !== selectedProvincia) return false;
         if (selectedDistrito && local.distrito !== selectedDistrito) return false;
+        if (
+          selectedUrbanRural &&
+          local.clasificacionOficialUrbanoRural !== selectedUrbanRural
+        ) {
+          return false;
+        }
+        if (
+          selectedUrbanSubtype &&
+          local.clasificacionOficialUrbanoRural === 'urbano' &&
+          local.subclasificacionUrbanaOficial !== selectedUrbanSubtype
+        ) {
+          return false;
+        }
         return true;
       }),
-    [locals, selectedDistrito, selectedProvincia, selectedRegion],
+    [locals, selectedDistrito, selectedProvincia, selectedRegion, selectedUrbanRural, selectedUrbanSubtype],
+  );
+
+  const visiblePresidentialSummary = useMemo(
+    () => aggregateVoteSummaries(filteredLocals.map((local) => local.results)),
+    [filteredLocals],
+  );
+
+  const presidentialPartyOptions = useMemo(() => {
+    const parties = visiblePresidentialSummary?.allParties ?? [];
+
+    return parties
+      .filter((party) => party.votes > 0)
+      .map((party) => ({ key: party.key, label: party.label }))
+      .sort((first, second) => {
+        const firstFixedIndex = FIXED_PARTIES.findIndex((party) => party.column === first.key);
+        const secondFixedIndex = FIXED_PARTIES.findIndex((party) => party.column === second.key);
+
+        if (firstFixedIndex >= 0 && secondFixedIndex >= 0) return firstFixedIndex - secondFixedIndex;
+        if (firstFixedIndex >= 0) return -1;
+        if (secondFixedIndex >= 0) return 1;
+        return first.label.localeCompare(second.label, 'es');
+      });
+  }, [visiblePresidentialSummary]);
+
+  const selectedPartyOneResult = useMemo(
+    () =>
+      selectedPartyOne
+        ? visiblePresidentialSummary?.allParties.find((party) => party.key === selectedPartyOne) ?? null
+        : null,
+    [selectedPartyOne, visiblePresidentialSummary],
+  );
+
+  const selectedPartyTwoResult = useMemo(
+    () =>
+      selectedPartyTwo
+        ? visiblePresidentialSummary?.allParties.find((party) => party.key === selectedPartyTwo) ?? null
+        : null,
+    [selectedPartyTwo, visiblePresidentialSummary],
   );
 
   const featureCollection = useMemo(() => buildFeatureCollection(filteredLocals), [filteredLocals]);
@@ -173,6 +230,20 @@ const MapContainer = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedPartyOne && !selectedPartyTwo) return;
+
+    const availableKeys = new Set(presidentialPartyOptions.map((party) => party.key));
+
+    if (selectedPartyOne && !availableKeys.has(selectedPartyOne)) {
+      setSelectedPartyOne('');
+    }
+
+    if (selectedPartyTwo && !availableKeys.has(selectedPartyTwo)) {
+      setSelectedPartyTwo('');
+    }
+  }, [presidentialPartyOptions, selectedPartyOne, selectedPartyTwo]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -612,13 +683,47 @@ const MapContainer = ({
     setSelectedDistrito(event.target.value);
   };
 
+  const handleUrbanRuralChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextValue = event.target.value;
+    setSelectedUrbanRural(nextValue);
+    if (nextValue !== 'urbano') {
+      setSelectedUrbanSubtype('');
+    }
+  };
+
+  const handleUrbanSubtypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedUrbanSubtype(event.target.value);
+  };
+
   const handleResetFilters = () => {
     setSelectedRegion('');
     setSelectedProvincia('');
     setSelectedDistrito('');
+    setSelectedUrbanRural('');
+    setSelectedUrbanSubtype('');
     setMesaQuery('');
     setMesaError(null);
     setMesaSuggestionsOpen(false);
+  };
+
+  const handlePartyOneChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextValue = event.target.value;
+    setSelectedPartyOne(nextValue);
+
+    if (nextValue && nextValue === selectedPartyTwo) {
+      setSelectedPartyTwo('');
+    }
+  };
+
+  const handlePartyTwoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextValue = event.target.value;
+
+    if (nextValue && nextValue === selectedPartyOne) {
+      setSelectedPartyTwo('');
+      return;
+    }
+
+    setSelectedPartyTwo(nextValue);
   };
 
   const resolveMesaSearch = (term: string) => {
@@ -657,11 +762,22 @@ const MapContainer = ({
     const sameFilters =
       selectedRegion === local.region &&
       selectedProvincia === local.provincia &&
-      selectedDistrito === local.distrito;
+      selectedDistrito === local.distrito &&
+      selectedUrbanRural === local.clasificacionOficialUrbanoRural &&
+      selectedUrbanSubtype ===
+        (local.clasificacionOficialUrbanoRural === 'urbano'
+          ? local.subclasificacionUrbanaOficial
+          : '');
 
     setSelectedRegion(local.region);
     setSelectedProvincia(local.provincia);
     setSelectedDistrito(local.distrito);
+    setSelectedUrbanRural(local.clasificacionOficialUrbanoRural);
+    setSelectedUrbanSubtype(
+      local.clasificacionOficialUrbanoRural === 'urbano'
+        ? local.subclasificacionUrbanaOficial
+        : '',
+    );
 
     if (sameFilters) {
       openLocalPopupRef.current?.(local, true);
@@ -855,7 +971,167 @@ const MapContainer = ({
                   ))}
                 </select>
               </label>
+
+              <label className="serie9-map__select-field">
+                <span>Clasificacion</span>
+                <select value={selectedUrbanRural} onChange={handleUrbanRuralChange}>
+                  <option value="">Todas</option>
+                  <option value="urbano">Urbano</option>
+                  <option value="rural">Rural</option>
+                </select>
+              </label>
+
+              {selectedUrbanRural === 'urbano' ? (
+                <label className="serie9-map__select-field">
+                  <span>Tipo urbano</span>
+                  <select value={selectedUrbanSubtype} onChange={handleUrbanSubtypeChange}>
+                    <option value="">Todos</option>
+                    <option value="urbano_central">Urbano central</option>
+                    <option value="urbano_periferico">Urbano periferico</option>
+                  </select>
+                </label>
+              ) : null}
+
+              <div className="serie9-map__presidential-selectors">
+                <label className="serie9-map__select-field">
+                  <span>Partido 1</span>
+                  <select
+                    value={selectedPartyOne}
+                    onChange={handlePartyOneChange}
+                    disabled={presidentialPartyOptions.length === 0}
+                  >
+                    <option value="">
+                      {presidentialPartyOptions.length === 0
+                        ? 'Sin votos visibles'
+                        : 'Selecciona un partido'}
+                    </option>
+                    {presidentialPartyOptions.map((party) => (
+                      <option key={party.key} value={party.key}>
+                        {party.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="serie9-map__select-field">
+                  <span>Partido 2</span>
+                  <select
+                    value={selectedPartyTwo}
+                    onChange={handlePartyTwoChange}
+                    disabled={presidentialPartyOptions.length === 0}
+                  >
+                    <option value="">
+                      {presidentialPartyOptions.length === 0
+                        ? 'Sin votos visibles'
+                        : 'Selecciona un segundo partido'}
+                    </option>
+                    {presidentialPartyOptions.map((party) => (
+                      <option
+                        key={party.key}
+                        value={party.key}
+                        disabled={party.key === selectedPartyOne}
+                      >
+                        {party.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
             </div>
+
+            <section className="serie9-map__presidential-panel" aria-label="Resultados presidenciales del subconjunto visible">
+              <div className="serie9-map__presidential-head">
+                <div>
+                  <p className="serie9-map__presidential-eyebrow">Solo Presidencia</p>
+                  <h3 className="serie9-map__presidential-title">Resultados del subconjunto visible</h3>
+                </div>
+                <span className="serie9-map__presidential-note">
+                  {formatNumber(featureCollection.features.length)} locales y {formatNumber(visibleMesaCount)} mesas segun los filtros activos. El ausentismo se calcula solo con {formatNumber(visiblePresidentialSummary?.countedMesas ?? 0)} mesas contabilizadas.
+                </span>
+              </div>
+
+              <div className="serie9-map__presidential-metrics">
+                <div className="serie9-map__stat-card">
+                  <strong>{visiblePresidentialSummary ? formatNumber(visiblePresidentialSummary.emittedVotes) : '0'}</strong>
+                  <span>Emitidos</span>
+                </div>
+                <div className="serie9-map__stat-card">
+                  <strong>{visiblePresidentialSummary ? formatNumber(visiblePresidentialSummary.validVotes) : '0'}</strong>
+                  <span>Validos</span>
+                </div>
+                <div className="serie9-map__stat-card">
+                  <strong>
+                    {visiblePresidentialSummary
+                      ? formatNumber(visiblePresidentialSummary.extras.blancoVotes)
+                      : '0'}
+                  </strong>
+                  <span>Blancos</span>
+                </div>
+                <div className="serie9-map__stat-card">
+                  <strong>
+                    {visiblePresidentialSummary
+                      ? formatNumber(visiblePresidentialSummary.eligibleVoters)
+                      : '0'}
+                  </strong>
+                  <span>Habiles</span>
+                </div>
+                <div className="serie9-map__stat-card">
+                  <strong>
+                    {visiblePresidentialSummary
+                      ? formatNumber(visiblePresidentialSummary.abstentionVotes)
+                      : '0'}
+                  </strong>
+                  <span>Ausentes</span>
+                  <small>
+                    {visiblePresidentialSummary
+                      ? `${visiblePresidentialSummary.abstentionShare.toFixed(1)}% de habiles`
+                      : '0.0% de habiles'}
+                  </small>
+                </div>
+                <div className="serie9-map__stat-card">
+                  <strong>
+                    {visiblePresidentialSummary
+                      ? formatNumber(visiblePresidentialSummary.pendingMesas)
+                      : '0'}
+                  </strong>
+                  <span>Enviadas al JEE</span>
+                </div>
+              </div>
+
+              <div className="serie9-map__presidential-party-cards">
+                {selectedPartyOneResult ? (
+                  <article className="serie9-map__party-card">
+                    <p>{selectedPartyOneResult.label}</p>
+                    <strong>{formatNumber(selectedPartyOneResult.votes)}</strong>
+                    <span>
+                      {selectedPartyOneResult.share.toFixed(1)}% de votos validos
+                    </span>
+                  </article>
+                ) : null}
+
+                {selectedPartyTwoResult ? (
+                  <article className="serie9-map__party-card">
+                    <p>{selectedPartyTwoResult.label}</p>
+                    <strong>{formatNumber(selectedPartyTwoResult.votes)}</strong>
+                    <span>
+                      {selectedPartyTwoResult.share.toFixed(1)}% de votos validos
+                    </span>
+                  </article>
+                ) : null}
+              </div>
+
+              {!selectedPartyOne && !selectedPartyTwo ? (
+                <p className="serie9-map__presidential-hint">
+                  Selecciona uno o dos partidos para calcular sus votos dentro del subconjunto visible.
+                </p>
+              ) : null}
+
+              {visiblePresidentialSummary?.pendingMesas ? (
+                <p className="serie9-map__presidential-hint">
+                  {formatNumber(visiblePresidentialSummary.pendingMesas)} mesas enviadas al JEE no se incluyen en el calculo de ausentismo ni en los totales presidenciales.
+                </p>
+              ) : null}
+            </section>
           </div>
         </div>
 

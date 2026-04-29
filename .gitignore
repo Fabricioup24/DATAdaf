@@ -27,3 +27,4 @@ pnpm-debug.log*
 # virtual environment
 datadaf/
 .astro-dev.err.log
+public/pdfs/inei_casco_urbano_full.geojson

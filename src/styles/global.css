@@ -4904,6 +4904,105 @@ header {
     cursor: not-allowed;
 }
 
+.serie9-map__presidential-panel {
+    display: grid;
+    gap: 0.85rem;
+    width: min(100%, 42rem);
+    padding: 0.95rem 1rem 1rem;
+    border: 1px solid rgba(18, 18, 18, 0.08);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.98));
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+}
+
+.serie9-map__presidential-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.serie9-map__presidential-eyebrow {
+    margin: 0 0 0.2rem;
+    color: rgba(18, 18, 18, 0.42);
+    font-size: 0.58rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.serie9-map__presidential-title {
+    margin: 0;
+    color: #121212;
+    font-size: 0.98rem;
+    font-weight: 950;
+    line-height: 1.1;
+}
+
+.serie9-map__presidential-note,
+.serie9-map__presidential-hint {
+    margin: 0;
+    color: rgba(18, 18, 18, 0.58);
+    font-size: 0.7rem;
+    font-weight: 750;
+    line-height: 1.4;
+}
+
+.serie9-map__presidential-selectors,
+.serie9-map__presidential-metrics,
+.serie9-map__presidential-party-cards {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.serie9-map__presidential-selectors {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(9rem, 1fr));
+}
+
+.serie9-map__presidential-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.serie9-map__presidential-party-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.serie9-map__party-card {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: 0.82rem 0.9rem 0.88rem;
+    border: 1px solid rgba(18, 18, 18, 0.08);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.serie9-map__party-card p {
+    margin: 0;
+    color: rgba(18, 18, 18, 0.56);
+    font-size: 0.64rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.serie9-map__party-card strong {
+    color: #121212;
+    font-size: 1rem;
+    font-weight: 950;
+    line-height: 1.1;
+}
+
+.serie9-map__party-card span {
+    color: rgba(18, 18, 18, 0.62);
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
 .serie9-map__legend {
     display: grid;
     gap: 0.16rem;
@@ -4994,6 +5093,13 @@ header {
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+}
+
+.serie9-map__stat-card small {
+    color: rgba(18, 18, 18, 0.56);
+    font-size: 0.64rem;
+    font-weight: 800;
+    line-height: 1.25;
 }
 
 .serie9-map__filters {
@@ -5714,6 +5820,10 @@ header {
         font-size: 0.53rem;
     }
 
+    .serie9-map__stat-card small {
+        font-size: 0.6rem;
+    }
+
     .serie9-map__controls {
         gap: 0.75rem;
     }
@@ -5742,6 +5852,24 @@ header {
     .serie9-map__select-field select {
         min-height: 2.05rem;
         font-size: 0.7rem;
+    }
+
+    .serie9-map__presidential-panel {
+        width: 100%;
+        padding: 0.82rem 0.9rem 0.9rem;
+    }
+
+    .serie9-map__presidential-metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.55rem;
+    }
+
+    .serie9-map__presidential-party-cards {
+        gap: 0.65rem;
+    }
+
+    .serie9-map__presidential-selectors {
+        grid-template-columns: repeat(3, minmax(8rem, 1fr));
     }
 }
 
@@ -5890,6 +6018,18 @@ header {
     .serie9-map__ghost-action {
         width: 100%;
         justify-content: center;
+    }
+
+    .serie9-map__presidential-panel,
+    .serie9-map__presidential-selectors,
+    .serie9-map__presidential-metrics,
+    .serie9-map__presidential-party-cards {
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .serie9-map__presidential-title {
+        font-size: 0.92rem;
     }
 
     .serie9-map__canvas {
