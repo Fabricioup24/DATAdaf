@@ -291,6 +291,25 @@ const MapContainer = ({
       mapInstance.getCanvas().style.cursor = '';
     };
 
+    const getPopupPlacement = (mapInstance: maplibregl.Map, local: VotingLocal) => {
+      const projectedPoint = mapInstance.project(local.coordinates);
+      const canvas = mapInstance.getCanvas();
+      const isRightHalf = projectedPoint.x > canvas.width * 0.55;
+      const isLowerZone = projectedPoint.y > canvas.height * 0.72;
+
+      if (isLowerZone) {
+        return {
+          anchor: isRightHalf ? 'bottom-right' : 'bottom-left',
+          offset: 18,
+        } as const;
+      }
+
+      return {
+        anchor: isRightHalf ? 'right' : 'left',
+        offset: 20,
+      } as const;
+    };
+
     const openLocalPopup = (mapInstance: maplibregl.Map, local: VotingLocal) => {
       activePopup.current?.remove();
       setSelectedLocal(mapInstance, local);
@@ -307,10 +326,12 @@ const MapContainer = ({
         });
       });
 
+      const popupPlacement = getPopupPlacement(mapInstance, local);
       const popup = new maplibregl.Popup({
+        anchor: popupPlacement.anchor,
         closeButton: true,
         maxWidth: '360px',
-        offset: 18,
+        offset: popupPlacement.offset,
       })
         .setLngLat(local.coordinates)
         .setDOMContent(popupContent)
