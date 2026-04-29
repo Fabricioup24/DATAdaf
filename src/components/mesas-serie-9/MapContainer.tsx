@@ -730,10 +730,6 @@ const MapContainer = ({
               <strong>{stats ? formatNumber(visibleMesaCount) : '...'}</strong>
               <span>Mesas representadas</span>
             </div>
-            <div className="serie9-map__stat-card">
-              <strong>{stats ? formatNumber(stats.missingRows) : '...'}</strong>
-              <span>Sin coordenada</span>
-            </div>
           </div>
 
           <div className="serie9-map__controls">
