@@ -37,8 +37,8 @@ const MapContainer = ({
   initialZoom = 5,
   height = '860px',
   maxBounds = [
-    [-92.0, -24.5],
-    [-58.0, 8.5],
+    [-97.0, -29.0],
+    [-53.0, 12.0],
   ],
 }: MapContainerProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -291,6 +291,22 @@ const MapContainer = ({
       mapInstance.getCanvas().style.cursor = '';
     };
 
+    const resetToOverview = (mapInstance: maplibregl.Map, duration = 900) => {
+      const isCompactViewport = window.matchMedia('(max-width: 720px)').matches;
+      const center: [number, number] = [
+        (maxBounds[0][0] + maxBounds[1][0]) / 2,
+        (maxBounds[0][1] + maxBounds[1][1]) / 2,
+      ];
+
+      mapInstance.easeTo({
+        center,
+        zoom: 1.7,
+        duration,
+        offset: isCompactViewport ? [0, 10] : [0, 0],
+        essential: true,
+      });
+    };
+
     const getPopupPlacement = (mapInstance: maplibregl.Map, local: VotingLocal) => {
       const projectedPoint = mapInstance.project(local.coordinates);
       const canvas = mapInstance.getCanvas();
@@ -362,7 +378,7 @@ const MapContainer = ({
       center: initialCenter,
       zoom: initialZoom,
       attributionControl: true,
-      minZoom: 2.2,
+      minZoom: 1.7,
       maxBounds,
     });
 
@@ -496,6 +512,23 @@ const MapContainer = ({
     event.preventDefault();
   };
 
+  const handleResetView = () => {
+    if (!map.current) return;
+    activePopup.current?.remove();
+    activePopup.current = null;
+    const center: [number, number] = [
+      (maxBounds[0][0] + maxBounds[1][0]) / 2,
+      (maxBounds[0][1] + maxBounds[1][1]) / 2,
+    ];
+    map.current.easeTo({
+      center,
+      zoom: 1.7,
+      duration: 900,
+      offset: window.matchMedia('(max-width: 720px)').matches ? [0, 10] : [0, 0],
+      essential: true,
+    });
+  };
+
   return (
     <div className="map-premium-wrapper serie9-map">
       <div className="serie9-map__toolbar" aria-label="Controles del mapa de locales">
@@ -566,6 +599,9 @@ const MapContainer = ({
         data-lenis-prevent
         onWheelCapture={handleMapWheelCapture}
       />
+      <button type="button" className="serie9-map__reset" onClick={handleResetView}>
+        Restablecer
+      </button>
 
       {(isLoading || error) && (
         <div className="serie9-map__status">{isLoading ? 'Cargando coordenadas...' : error}</div>

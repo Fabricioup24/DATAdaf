@@ -4799,6 +4799,31 @@ header {
     overscroll-behavior: contain;
 }
 
+.serie9-map__reset {
+    position: absolute;
+    top: 8.9rem;
+    right: 4.15rem;
+    z-index: 2;
+    min-height: 2.05rem;
+    padding: 0.34rem 0.68rem;
+    border: 1px solid rgba(18, 18, 18, 0.12);
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #121212;
+    font-size: 0.64rem;
+    font-weight: 950;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.serie9-map__reset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.16);
+}
+
 .serie9-map__status {
     position: absolute;
     left: 1rem;
@@ -5097,6 +5122,14 @@ header {
 
     .serie9-map__canvas {
         min-height: 540px;
+    }
+
+    .serie9-map__reset {
+        top: 12.65rem;
+        right: 4rem;
+        min-height: 1.95rem;
+        padding: 0.3rem 0.58rem;
+        font-size: 0.6rem;
     }
 
 
