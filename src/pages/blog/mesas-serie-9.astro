@@ -7,8 +7,8 @@ import Labels from '../../components/labels';
 ---
 
 <Layout 
-  title="Mesas Serie 9: Geolocalización de locales de votación | DATAdaf"
-  description="Visualización y análisis geográfico de los locales de votación asociados a las mesas Serie 9, con coordenadas validadas y niveles de confianza para su interpretación territorial."
+  title="Visualización espacial de las mesas series 900 | DATAdaf"
+  description="Este mapa presenta la ubicación de los locales vinculados a mesas serie 900 y la distribución de sus votos, con base en registros electorales y criterios de procesamiento documentados."
   showNativeScrollbar={true}
 >
   <div id="main-wrapper" class="page-ready bg-white min-h-screen text-[#121212]">
@@ -28,12 +28,12 @@ import Labels from '../../components/labels';
           </div>
           
           <h1 class="text-[clamp(2.5rem,12vw,3.75rem)] md:text-8xl font-black mb-8 md:mb-10 leading-[0.92] md:leading-[0.9] tracking-tighter text-[#121212]">
-            Ubicación de las <br/>
-            <span class="text-blue-600">mesas de la serie 900</span>
+            Visualización espacial de las <br/>
+            <span class="text-blue-600">mesas series 900</span>
           </h1>
           
           <p class="text-lg md:text-2xl text-[#121212]/70 font-medium leading-relaxed max-w-2xl">
-            Visualización y análisis de la distribución espacial de los centros de votación.
+            Este mapa presenta la ubicación de los locales vinculados a mesas serie 900 y la distribución de sus votos, con base en registros electorales y criterios de procesamiento documentados.
           </p>
         </div>
 
@@ -41,28 +41,17 @@ import Labels from '../../components/labels';
           <div class="prose prose-lg max-w-none mb-12">
             
             <div class="glass-card p-5 sm:p-8 my-8 md:my-10 border-l-4 border-blue-600 bg-blue-50/30">
-              <h3 class="text-xl font-black mb-4 uppercase tracking-wider text-blue-900">Contexto Técnico y Legal</h3>
+              <h3 class="text-xl font-black mb-4 uppercase tracking-wider text-blue-900">Contexto Técnico e Institucional</h3>
               <p class="text-blue-900/80 leading-relaxed mb-4">
-                Las mesas con número de identificación a partir del <strong>900001</strong> analizadas en este reporte corresponden a las <strong>mesas serie 900 habilitadas para las Elecciones Generales de 2026</strong>. Estas mesas suelen ubicarse en comunidades rurales alejadas y centros poblados, y su existencia no responde a una irregularidad reciente: se trata de un mecanismo aplicado desde el año <strong>2005</strong> para facilitar el derecho al voto en zonas de difícil acceso.
+                Las mesas con identificadores entre <strong>900001</strong> y <strong>904703</strong> corresponden a centros poblados. Según la ONPE, están integradas por electores que residen en comunidades alejadas de la capital distrital y se implementan desde <strong>2005</strong> para facilitar el acceso al sufragio en zonas de difícil traslado.
               </p>
-              <ul class="list-none p-0 m-0 space-y-2 text-sm font-bold text-blue-900/70">
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
-                  Su existencia puede auditarse en el portal oficial de resultados.
-                </li>
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
-                  Se utilizan para facilitar el voto en centros poblados rurales y zonas de acceso complejo.
-                </li>
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
-                  Este mecanismo se aplica desde hace más de dos décadas bajo criterios de cobertura territorial.
-                </li>
-              </ul>
+              <p class="text-blue-900/75 leading-relaxed">
+                Este reporte muestra la ubicación de los locales asociados y la distribución de sus votos para fines de transparencia y análisis territorial.
+              </p>
             </div>
 
             <p>
-              En el contexto de las elecciones de abril de 2026, las mesas serie 900 han sido objeto de debate en el espacio público. Este reporte georreferenciado busca mostrar dónde se ubican los locales asociados a esas mesas y cuál es el nivel de confianza de sus coordenadas, para aportar una base espacial verificable al análisis.
+              Esta visualización ofrece una base espacial para examinar la distribución territorial de los locales vinculados a las mesas serie 900 y observar la distribución de sus votos en el marco de las Elecciones Generales 2026.
             </p>
           </div>
 
@@ -77,7 +66,7 @@ import Labels from '../../components/labels';
               height="clamp(620px, 84vh, 980px)"
             />
             <p class="mt-4 text-sm text-[#121212]/40 italic">
-              * El mapa muestra locales de votación con coordenadas SIGMED/MINEDU; cada punto agrupa sus mesas asociadas.
+              * El mapa muestra locales de votación asociados a las mesas serie 900; cada punto agrupa sus mesas vinculadas.
             </p>
           </div>
 
