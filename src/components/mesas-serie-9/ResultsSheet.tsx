@@ -15,10 +15,12 @@ const VoteComparison = ({
   summary,
   title,
   subtitle,
+  className,
 }: {
   summary: VoteSummary;
   title: string;
   subtitle?: string;
+  className?: string;
 }) => {
   const sortedParties = useMemo(
     () =>
@@ -35,7 +37,7 @@ const VoteComparison = ({
   );
 
   return (
-    <section className="serie9-results__panel">
+    <section className={`serie9-results__panel${className ? ` ${className}` : ''}`}>
       <div className="serie9-results__panel-head">
         <div>
           <p className="serie9-results__eyebrow">{title}</p>
@@ -281,6 +283,7 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
                 key={selectedMesa.numeroMesa}
                 summary={selectedMesa.results}
                 title={`Mesa ${selectedMesa.numeroMesa}`}
+                className="serie9-results__panel--mesa-detail"
                 subtitle={
                   selectedMesa.participacionPct
                     ? `Participacion ${selectedMesa.participacionPct}%`
