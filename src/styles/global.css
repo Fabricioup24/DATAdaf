@@ -117,6 +117,7 @@ html.show-native-scrollbar,
 body.show-native-scrollbar {
     scrollbar-width: thin;
     -ms-overflow-style: auto;
+    scrollbar-gutter: stable;
 }
 
 html.show-native-scrollbar::-webkit-scrollbar,
