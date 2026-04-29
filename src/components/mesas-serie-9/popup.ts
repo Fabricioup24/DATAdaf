@@ -1,4 +1,4 @@
-import { PRECISION_META, TOOLTIP_ICON } from './constants';
+import { PRECISION_META } from './constants';
 import type { VotingLocal } from './types';
 
 export const createPopupContent = (local: VotingLocal): HTMLElement => {
@@ -38,9 +38,6 @@ export const createPopupContent = (local: VotingLocal): HTMLElement => {
   [
     ['Local', local.numeroLocal],
     ['Mesas', String(local.mesas.length)],
-    ['Dirección', local.direccion],
-    ['Fuente', local.sigmedFuente || local.confianzaSigmed],
-    ['Score', local.scoreCoord],
   ].forEach(([label, value]) => {
     if (!value) return;
     const item = document.createElement('div');
@@ -84,31 +81,6 @@ export const createPopupContent = (local: VotingLocal): HTMLElement => {
   zoomButton.textContent = 'Acercar';
   actions.appendChild(zoomButton);
   root.appendChild(actions);
-
-  const tooltip = document.createElement('div');
-  tooltip.className = 'serie9-popup__tooltip';
-
-  const tooltipHeader = document.createElement('div');
-  tooltipHeader.className = 'serie9-popup__tooltip-header';
-
-  const tooltipIcon = document.createElement('span');
-  tooltipIcon.className = 'serie9-popup__tooltip-icon';
-  tooltipIcon.innerHTML = TOOLTIP_ICON;
-  tooltipHeader.appendChild(tooltipIcon);
-
-  const tooltipTitle = document.createElement('strong');
-  tooltipTitle.textContent = 'Como leer este punto';
-  tooltipHeader.appendChild(tooltipTitle);
-  tooltip.appendChild(tooltipHeader);
-
-  const tooltipBody = document.createElement('div');
-  tooltipBody.className = 'serie9-popup__tooltip-body';
-  tooltipBody.innerHTML = `
-    <p><strong>Score</strong>: resume la fuerza de la coincidencia en SIGMED. Un valor mas alto suele indicar mejor consistencia entre codigo, nombre, centro poblado y fuente GPS. En otros terminos, es como si el sistema dijera: "este local si se parece bastante al que buscamos".</p>
-    <p><strong>ALTA</strong>: local compatible por codigo o nombre y contexto geografico. <strong>MEDIA</strong>: buena coincidencia con diferencias menores. <strong>APROXIMADA</strong>: punto util de la zona, no necesariamente del local exacto. <strong>REVISAR</strong>: requiere verificacion manual.</p>
-  `;
-  tooltip.appendChild(tooltipBody);
-  root.appendChild(tooltip);
 
   return root;
 };

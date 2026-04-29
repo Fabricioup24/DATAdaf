@@ -60,18 +60,64 @@ const MapContainer = ({
   const [selectedPrecisions, setSelectedPrecisions] = useState<Set<PrecisionCoord>>(
     () => new Set(PRECISION_OPTIONS),
   );
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedProvincia, setSelectedProvincia] = useState('');
+  const [selectedDistrito, setSelectedDistrito] = useState('');
+
+  const regionOptions = useMemo(
+    () => Array.from(new Set(locals.map((local) => local.region).filter(Boolean))).sort(),
+    [locals],
+  );
+
+  const provinciaOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          locals
+            .filter((local) => !selectedRegion || local.region === selectedRegion)
+            .map((local) => local.provincia)
+            .filter(Boolean),
+        ),
+      ).sort(),
+    [locals, selectedRegion],
+  );
+
+  const distritoOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          locals
+            .filter((local) => !selectedRegion || local.region === selectedRegion)
+            .filter((local) => !selectedProvincia || local.provincia === selectedProvincia)
+            .map((local) => local.distrito)
+            .filter(Boolean),
+        ),
+      ).sort(),
+    [locals, selectedRegion, selectedProvincia],
+  );
+
+  const filteredLocals = useMemo(
+    () =>
+      locals.filter((local) => {
+        if (selectedRegion && local.region !== selectedRegion) return false;
+        if (selectedProvincia && local.provincia !== selectedProvincia) return false;
+        if (selectedDistrito && local.distrito !== selectedDistrito) return false;
+        return true;
+      }),
+    [locals, selectedDistrito, selectedProvincia, selectedRegion],
+  );
 
   const featureCollection = useMemo(
-    () => buildFeatureCollection(locals, selectedPrecisions),
-    [locals, selectedPrecisions],
+    () => buildFeatureCollection(filteredLocals, selectedPrecisions),
+    [filteredLocals, selectedPrecisions],
   );
 
   const visibleMesaCount = useMemo(
     () =>
-      locals
+      filteredLocals
         .filter((local) => selectedPrecisions.has(local.precisionCoord))
         .reduce((total, local) => total + local.mesas.length, 0),
-    [locals, selectedPrecisions],
+    [filteredLocals, selectedPrecisions],
   );
 
   useEffect(() => {
@@ -291,22 +337,6 @@ const MapContainer = ({
       mapInstance.getCanvas().style.cursor = '';
     };
 
-    const resetToOverview = (mapInstance: maplibregl.Map, duration = 900) => {
-      const isCompactViewport = window.matchMedia('(max-width: 720px)').matches;
-      const center: [number, number] = [
-        (maxBounds[0][0] + maxBounds[1][0]) / 2,
-        (maxBounds[0][1] + maxBounds[1][1]) / 2,
-      ];
-
-      mapInstance.easeTo({
-        center,
-        zoom: 1.7,
-        duration,
-        offset: isCompactViewport ? [0, 10] : [0, 0],
-        essential: true,
-      });
-    };
-
     const getPopupPlacement = (mapInstance: maplibregl.Map, local: VotingLocal) => {
       const projectedPoint = mapInstance.project(local.coordinates);
       const canvas = mapInstance.getCanvas();
@@ -507,6 +537,23 @@ const MapContainer = ({
     });
   };
 
+  const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextRegion = event.target.value;
+    setSelectedRegion(nextRegion);
+    setSelectedProvincia('');
+    setSelectedDistrito('');
+  };
+
+  const handleProvinciaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextProvincia = event.target.value;
+    setSelectedProvincia(nextProvincia);
+    setSelectedDistrito('');
+  };
+
+  const handleDistritoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDistrito(event.target.value);
+  };
+
   const handleMapWheelCapture = (event: React.WheelEvent<HTMLDivElement>) => {
     if (!map.current) return;
     event.preventDefault();
@@ -532,36 +579,90 @@ const MapContainer = ({
   return (
     <div className="map-premium-wrapper serie9-map">
       <div className="serie9-map__toolbar" aria-label="Controles del mapa de locales">
-        <div className="serie9-map__stats">
-          <strong>{stats ? formatNumber(featureCollection.features.length) : '...'}</strong>
-          <span>locales visibles</span>
-          <strong>{stats ? formatNumber(visibleMesaCount) : '...'}</strong>
-          <span>mesas representadas</span>
-          {stats ? (
-            <>
-              <strong>{formatNumber(stats.missingRows)}</strong>
-              <span>sin coordenada</span>
-            </>
-          ) : null}
-        </div>
+        <div className="serie9-map__toolbar-main">
+          <div className="serie9-map__stats">
+            <div className="serie9-map__stat-card">
+              <strong>{stats ? formatNumber(featureCollection.features.length) : '...'}</strong>
+              <span>Locales visibles</span>
+            </div>
+            <div className="serie9-map__stat-card">
+              <strong>{stats ? formatNumber(visibleMesaCount) : '...'}</strong>
+              <span>Mesas representadas</span>
+            </div>
+            <div className="serie9-map__stat-card">
+              <strong>{stats ? formatNumber(stats.missingRows) : '...'}</strong>
+              <span>Sin coordenada</span>
+            </div>
+          </div>
 
-        <div className="serie9-map__controls">
-          <div className="serie9-map__control-stack">
-            <div className="serie9-map__basemap" aria-label="Cambiar capa base del mapa">
-              <button
-                type="button"
-                className={basemapMode === 'croquis' ? 'is-active' : ''}
-                onClick={() => setBasemapMode('croquis')}
-              >
-                Croquis
+          <div className="serie9-map__controls">
+            <div className="serie9-map__toolbar-top">
+              <div className="serie9-map__basemap" aria-label="Cambiar capa base del mapa">
+                <button
+                  type="button"
+                  className={basemapMode === 'croquis' ? 'is-active' : ''}
+                  onClick={() => setBasemapMode('croquis')}
+                >
+                  Croquis
+                </button>
+                <button
+                  type="button"
+                  className={basemapMode === 'satelite' ? 'is-active' : ''}
+                  onClick={() => setBasemapMode('satelite')}
+                >
+                  Satelite
+                </button>
+              </div>
+
+              <button type="button" className="serie9-map__reset" onClick={handleResetView}>
+                Restablecer
               </button>
-              <button
-                type="button"
-                className={basemapMode === 'satelite' ? 'is-active' : ''}
-                onClick={() => setBasemapMode('satelite')}
-              >
-                Satelite
-              </button>
+            </div>
+
+            <div className="serie9-map__geo-filters" aria-label="Filtrar por ubicacion">
+              <label className="serie9-map__select-field">
+                <span>Region</span>
+                <select value={selectedRegion} onChange={handleRegionChange}>
+                  <option value="">Todas</option>
+                  {regionOptions.map((region) => (
+                    <option key={region} value={region}>
+                      {region}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="serie9-map__select-field">
+                <span>Provincia</span>
+                <select
+                  value={selectedProvincia}
+                  onChange={handleProvinciaChange}
+                  disabled={provinciaOptions.length === 0}
+                >
+                  <option value="">Todas</option>
+                  {provinciaOptions.map((provincia) => (
+                    <option key={provincia} value={provincia}>
+                      {provincia}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="serie9-map__select-field">
+                <span>Distrito</span>
+                <select
+                  value={selectedDistrito}
+                  onChange={handleDistritoChange}
+                  disabled={distritoOptions.length === 0}
+                >
+                  <option value="">Todos</option>
+                  {distritoOptions.map((distrito) => (
+                    <option key={distrito} value={distrito}>
+                      {distrito}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <div className="serie9-map__filters" aria-label="Filtrar por precisión">
@@ -578,17 +679,17 @@ const MapContainer = ({
               ))}
             </div>
           </div>
+        </div>
 
-          <div className="serie9-map__legend" aria-label="Como leer el mapa">
-            <p className="serie9-map__legend-title">Como leer el mapa</p>
-            <p className="serie9-map__legend-copy">
-              Cada punto representa un local de votacion asociado a mesas serie 900 de 2026.
-            </p>
-            <p className="serie9-map__legend-note">
-              Los colores indican nivel de confianza de la georreferenciacion, no tipo de mesa ni
-              resultado electoral.
-            </p>
-          </div>
+        <div className="serie9-map__legend" aria-label="Como leer el mapa">
+          <p className="serie9-map__legend-title">Como leer el mapa</p>
+          <p className="serie9-map__legend-copy">
+            Cada punto representa un local de votacion asociado a mesas serie 900 de 2026.
+          </p>
+          <p className="serie9-map__legend-note">
+            Los colores indican nivel de confianza de la georreferenciacion, no tipo de mesa ni
+            resultado electoral.
+          </p>
         </div>
       </div>
 
@@ -599,9 +700,6 @@ const MapContainer = ({
         data-lenis-prevent
         onWheelCapture={handleMapWheelCapture}
       />
-      <button type="button" className="serie9-map__reset" onClick={handleResetView}>
-        Restablecer
-      </button>
 
       {(isLoading || error) && (
         <div className="serie9-map__status">{isLoading ? 'Cargando coordenadas...' : error}</div>
