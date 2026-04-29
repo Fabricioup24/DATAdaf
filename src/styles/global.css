@@ -4706,14 +4706,14 @@ header {
 
 .serie9-map__toolbar-main {
     display: grid;
-    grid-template-columns: minmax(18rem, 1fr) minmax(24rem, 38rem);
+    grid-template-columns: max-content minmax(30rem, 1fr);
     gap: 1rem 1.25rem;
     align-items: start;
 }
 
 .serie9-map__controls {
     display: grid;
-    gap: 0.7rem;
+    gap: 0.9rem;
     justify-items: stretch;
 }
 
@@ -4728,13 +4728,14 @@ header {
 .serie9-map__geo-filters {
     display: grid;
     grid-template-columns: repeat(3, minmax(9rem, 1fr));
-    gap: 0.55rem;
+    gap: 0.95rem;
     width: min(100%, 32rem);
 }
 
 .serie9-map__select-field {
     display: grid;
     gap: 0.22rem;
+    min-width: 0;
 }
 
 .serie9-map__select-field span {
@@ -4746,6 +4747,10 @@ header {
 }
 
 .serie9-map__select-field select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     min-height: 2.2rem;
     padding: 0.42rem 0.72rem;
     border: 1px solid rgba(18, 18, 18, 0.12);
@@ -4832,14 +4837,14 @@ header {
 
 .serie9-map__stats {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.65rem;
+    grid-template-columns: repeat(3, minmax(6.7rem, 7.8rem));
+    gap: 0.55rem;
 }
 
 .serie9-map__stat-card {
     display: grid;
     gap: 0.18rem;
-    padding: 0.9rem 0.95rem;
+    padding: 0.7rem 0.78rem;
     border: 1px solid rgba(18, 18, 18, 0.08);
     border-radius: 0.9rem;
     background: linear-gradient(180deg, #ffffff, #f8fafc);
@@ -4848,14 +4853,14 @@ header {
 
 .serie9-map__stat-card strong {
     color: #121212;
-    font-size: 1.05rem;
+    font-size: 0.96rem;
     font-weight: 950;
     letter-spacing: -0.02em;
 }
 
 .serie9-map__stat-card span {
     color: rgba(18, 18, 18, 0.54);
-    font-size: 0.65rem;
+    font-size: 0.58rem;
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;

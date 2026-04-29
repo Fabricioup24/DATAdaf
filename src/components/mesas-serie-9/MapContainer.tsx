@@ -681,16 +681,6 @@ const MapContainer = ({
           </div>
         </div>
 
-        <div className="serie9-map__legend" aria-label="Como leer el mapa">
-          <p className="serie9-map__legend-title">Como leer el mapa</p>
-          <p className="serie9-map__legend-copy">
-            Cada punto representa un local de votacion asociado a mesas serie 900 de 2026.
-          </p>
-          <p className="serie9-map__legend-note">
-            Los colores indican nivel de confianza de la georreferenciacion, no tipo de mesa ni
-            resultado electoral.
-          </p>
-        </div>
       </div>
 
       <div
