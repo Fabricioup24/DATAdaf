@@ -8,13 +8,32 @@ import '../styles/global.css';
 interface Props {
 	title?: string;
     description?: string;
+    showNativeScrollbar?: boolean;
 }
 
-const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Soluciones avanzadas en ciencia de datos, machine learning y visualización" } = Astro.props;
+const {
+	title = "DATAdaf - Análisis de Datos Inteligentes",
+	description = "Soluciones avanzadas en ciencia de datos, machine learning y visualización",
+	showNativeScrollbar = false,
+} = Astro.props;
+
+const htmlClasses = [
+	showNativeScrollbar ? 'show-native-scrollbar' : '',
+	showNativeScrollbar ? 'page-ready' : '',
+]
+	.filter(Boolean)
+	.join(' ');
+
+const bodyClasses = [
+	showNativeScrollbar ? 'show-native-scrollbar' : '',
+	showNativeScrollbar ? 'page-ready' : '',
+]
+	.filter(Boolean)
+	.join(' ');
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" class={htmlClasses || undefined}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
@@ -62,7 +81,7 @@ const { title = "DATAdaf - Análisis de Datos Inteligentes", description = "Solu
 		}
 		`} />
 	</head>
-	<body>
+	<body class={bodyClasses || undefined}>
 		<slot />
         
         <script>

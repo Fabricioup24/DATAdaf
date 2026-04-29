@@ -113,6 +113,37 @@ body {
     /* IE/Edge */
 }
 
+html.show-native-scrollbar,
+body.show-native-scrollbar {
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+}
+
+html.show-native-scrollbar::-webkit-scrollbar,
+body.show-native-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: 12px;
+}
+
+html.show-native-scrollbar::-webkit-scrollbar-track,
+body.show-native-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html.show-native-scrollbar::-webkit-scrollbar-thumb,
+body.show-native-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(18, 18, 18, 0.26);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+html.show-native-scrollbar::-webkit-scrollbar-thumb:hover,
+body.show-native-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(18, 18, 18, 0.4);
+    background-clip: padding-box;
+}
+
 html.page-ready {
     overflow: visible;
 }
@@ -3880,6 +3911,21 @@ section {
         overflow-y: auto !important;
         min-height: 100% !important;
         width: 100% !important;
+    }
+
+    html.show-native-scrollbar,
+    body.show-native-scrollbar {
+        scrollbar-width: thin !important;
+        -ms-overflow-style: auto !important;
+    }
+
+    html.show-native-scrollbar::-webkit-scrollbar,
+    body.show-native-scrollbar::-webkit-scrollbar {
+        display: block !important;
+        width: 10px !important;
+        height: 10px !important;
+        -webkit-appearance: auto !important;
+        background: transparent !important;
     }
 
     /* Contenedor padre debe recortar el scrollbar */
