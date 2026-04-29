@@ -28,6 +28,15 @@ import type {
   VotingLocal,
 } from './types';
 
+type MesaSearchResult = {
+  numeroMesa: string;
+  localId: string;
+  localNombre: string;
+  region: string;
+  provincia: string;
+  distrito: string;
+};
+
 const MapContainer = ({
   dataUrl = '/pdfs/01_base_4703_mesas_serie9_con_coordenadas.csv',
   initialCenter = [-75.0152, -9.19],
@@ -47,6 +56,9 @@ const MapContainer = ({
   const pulseFrameRef = useRef<number | null>(null);
   const lenisResumeTimeout = useRef<number | null>(null);
   const hasAppliedInitialView = useRef(false);
+  const openLocalPopupRef = useRef<((local: VotingLocal, shouldZoom?: boolean) => void) | null>(null);
+  const pendingSearchLocalRef = useRef<VotingLocal | null>(null);
+  const blurSearchTimeoutRef = useRef<number | null>(null);
 
   const [locals, setLocals] = useState<VotingLocal[]>([]);
   const [stats, setStats] = useState<MapStats | null>(null);
@@ -57,6 +69,46 @@ const MapContainer = ({
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvincia, setSelectedProvincia] = useState('');
   const [selectedDistrito, setSelectedDistrito] = useState('');
+  const [mesaQuery, setMesaQuery] = useState('');
+  const [mesaSuggestionsOpen, setMesaSuggestionsOpen] = useState(false);
+  const [mesaError, setMesaError] = useState<string | null>(null);
+
+  const mesaSearchIndex = useMemo(
+    () =>
+      locals
+        .flatMap((local) =>
+          local.mesas.map<MesaSearchResult>((mesa) => ({
+            numeroMesa: mesa.numeroMesa,
+            localId: local.id,
+            localNombre: local.nombreLocal,
+            region: local.region,
+            provincia: local.provincia,
+            distrito: local.distrito,
+          })),
+        )
+        .sort((first, second) =>
+          first.numeroMesa.localeCompare(second.numeroMesa, 'es', { numeric: true }),
+        ),
+    [locals],
+  );
+
+  const mesaSuggestions = useMemo(() => {
+    const query = mesaQuery.trim();
+    if (!query) return [];
+
+    const exactMatches = mesaSearchIndex.filter((item) => item.numeroMesa === query);
+    const startsWithMatches = mesaSearchIndex.filter(
+      (item) => item.numeroMesa !== query && item.numeroMesa.startsWith(query),
+    );
+    const includesMatches = mesaSearchIndex.filter(
+      (item) =>
+        item.numeroMesa !== query &&
+        !item.numeroMesa.startsWith(query) &&
+        item.numeroMesa.includes(query),
+    );
+
+    return [...exactMatches, ...startsWithMatches, ...includesMatches].slice(0, 8);
+  }, [mesaQuery, mesaSearchIndex]);
 
   const regionOptions = useMemo(
     () => Array.from(new Set(locals.map((local) => local.region).filter(Boolean))).sort(),
@@ -111,6 +163,14 @@ const MapContainer = ({
   useEffect(() => {
     featureCollectionRef.current = featureCollection;
   }, [featureCollection]);
+
+  useEffect(() => {
+    return () => {
+      if (blurSearchTimeoutRef.current !== null) {
+        window.clearTimeout(blurSearchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -367,6 +427,22 @@ const MapContainer = ({
       activePopup.current = popup;
     };
 
+    const focusLocalOnMap = (local: VotingLocal, shouldZoom = false) => {
+      if (shouldZoom) {
+        mapInstance.flyTo({
+          center: local.coordinates,
+          zoom: Math.max(mapInstance.getZoom(), 15.2),
+          speed: 1.15,
+          curve: 1.42,
+          essential: true,
+        });
+      }
+
+      openLocalPopup(mapInstance, local);
+    };
+
+    openLocalPopupRef.current = focusLocalOnMap;
+
     const handlePointClick = (
       event: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] },
     ) => {
@@ -438,6 +514,7 @@ const MapContainer = ({
       mapInstance.off('click', LAYER_ID, handlePointClick);
       mapInstance.remove();
       stopSelectionPulse();
+      openLocalPopupRef.current = null;
       map.current = null;
     };
   }, [initialCenter, initialZoom]);
@@ -495,6 +572,17 @@ const MapContainer = ({
   }, [featureCollection, isMapReady]);
 
   useEffect(() => {
+    const pendingLocal = pendingSearchLocalRef.current;
+    if (!pendingLocal || !isMapReady) return;
+
+    const isVisible = filteredLocals.some((local) => local.id === pendingLocal.id);
+    if (!isVisible) return;
+
+    openLocalPopupRef.current?.(pendingLocal, true);
+    pendingSearchLocalRef.current = null;
+  }, [filteredLocals, isMapReady]);
+
+  useEffect(() => {
     if (!map.current) return;
     activePopup.current?.remove();
     activePopup.current = null;
@@ -522,6 +610,89 @@ const MapContainer = ({
     setSelectedRegion('');
     setSelectedProvincia('');
     setSelectedDistrito('');
+    setMesaQuery('');
+    setMesaError(null);
+    setMesaSuggestionsOpen(false);
+  };
+
+  const resolveMesaSearch = (term: string) => {
+    const query = term.trim();
+    if (!query) return null;
+
+    return (
+      mesaSearchIndex.find((item) => item.numeroMesa === query) ??
+      mesaSuggestions.find((item) => item.numeroMesa === query) ??
+      mesaSuggestions[0] ??
+      null
+    );
+  };
+
+  const executeMesaSearch = (term: string) => {
+    const match = resolveMesaSearch(term);
+
+    if (!match) {
+      setMesaError('No se encontro una mesa con ese numero.');
+      setMesaSuggestionsOpen(false);
+      return;
+    }
+
+    const local = localsById.current.get(match.localId);
+    if (!local) {
+      setMesaError('No se pudo ubicar el local asociado a esa mesa.');
+      setMesaSuggestionsOpen(false);
+      return;
+    }
+
+    setMesaQuery(match.numeroMesa);
+    setMesaError(null);
+    setMesaSuggestionsOpen(false);
+    pendingSearchLocalRef.current = local;
+
+    const sameFilters =
+      selectedRegion === local.region &&
+      selectedProvincia === local.provincia &&
+      selectedDistrito === local.distrito;
+
+    setSelectedRegion(local.region);
+    setSelectedProvincia(local.provincia);
+    setSelectedDistrito(local.distrito);
+
+    if (sameFilters) {
+      openLocalPopupRef.current?.(local, true);
+      pendingSearchLocalRef.current = null;
+    }
+  };
+
+  const handleMesaSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    executeMesaSearch(mesaQuery);
+  };
+
+  const handleMesaInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMesaQuery(event.target.value);
+    setMesaError(null);
+    setMesaSuggestionsOpen(true);
+  };
+
+  const handleMesaInputFocus = () => {
+    if (blurSearchTimeoutRef.current !== null) {
+      window.clearTimeout(blurSearchTimeoutRef.current);
+      blurSearchTimeoutRef.current = null;
+    }
+    if (mesaQuery.trim()) {
+      setMesaSuggestionsOpen(true);
+    }
+  };
+
+  const handleMesaInputBlur = () => {
+    blurSearchTimeoutRef.current = window.setTimeout(() => {
+      setMesaSuggestionsOpen(false);
+      blurSearchTimeoutRef.current = null;
+    }, 120);
+  };
+
+  const handleMesaSuggestionSelect = (numeroMesa: string) => {
+    executeMesaSearch(numeroMesa);
   };
 
   const handleMapWheelCapture = (event: React.WheelEvent<HTMLDivElement>) => {
@@ -595,6 +766,50 @@ const MapContainer = ({
             </div>
 
             <div className="serie9-map__geo-filters" aria-label="Filtrar por ubicacion">
+              <form className="serie9-map__mesa-search" onSubmit={handleMesaSubmit}>
+                <label className="serie9-map__search-field">
+                  <span>Buscar mesa</span>
+                  <div className="serie9-map__search-input-wrap">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="Ej. 900001"
+                      value={mesaQuery}
+                      onChange={handleMesaInputChange}
+                      onFocus={handleMesaInputFocus}
+                      onBlur={handleMesaInputBlur}
+                    />
+                    <button type="submit" className="serie9-map__search-button">
+                      Buscar
+                    </button>
+                  </div>
+                </label>
+
+                {mesaSuggestionsOpen && mesaSuggestions.length > 0 ? (
+                  <div className="serie9-map__search-suggestions" role="listbox">
+                    {mesaSuggestions.map((item) => (
+                      <button
+                        key={`${item.numeroMesa}-${item.localId}`}
+                        type="button"
+                        className="serie9-map__search-suggestion"
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          handleMesaSuggestionSelect(item.numeroMesa);
+                        }}
+                      >
+                        <strong>{item.numeroMesa}</strong>
+                        <span>
+                          {item.localNombre} · {item.distrito}, {item.provincia}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
+                {mesaError ? <p className="serie9-map__search-error">{mesaError}</p> : null}
+              </form>
+
               <label className="serie9-map__select-field">
                 <span>Region</span>
                 <select value={selectedRegion} onChange={handleRegionChange}>
