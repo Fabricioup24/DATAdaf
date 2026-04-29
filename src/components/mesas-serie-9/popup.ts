@@ -75,6 +75,12 @@ export const createPopupContent = (local: VotingLocal): HTMLElement => {
   const actions = document.createElement('div');
   actions.className = 'serie9-popup__actions';
 
+  const resultsButton = document.createElement('button');
+  resultsButton.type = 'button';
+  resultsButton.className = 'serie9-popup__results-button';
+  resultsButton.textContent = 'Ver resultados';
+  actions.appendChild(resultsButton);
+
   const zoomButton = document.createElement('button');
   zoomButton.type = 'button';
   zoomButton.className = 'serie9-popup__zoom-button';

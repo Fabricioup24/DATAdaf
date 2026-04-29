@@ -19,6 +19,7 @@ import {
   parseCsvObjects,
 } from './data';
 import { createPopupContent } from './popup';
+import ResultsSheet from './ResultsSheet';
 import type {
   BasemapMode,
   GeoJsonSourceLike,
@@ -72,6 +73,7 @@ const MapContainer = ({
   const [mesaQuery, setMesaQuery] = useState('');
   const [mesaSuggestionsOpen, setMesaSuggestionsOpen] = useState(false);
   const [mesaError, setMesaError] = useState<string | null>(null);
+  const [resultsLocal, setResultsLocal] = useState<VotingLocal | null>(null);
 
   const mesaSearchIndex = useMemo(
     () =>
@@ -397,7 +399,11 @@ const MapContainer = ({
       setSelectedLocal(mapInstance, local);
 
       const popupContent = createPopupContent(local);
+      const resultsButton = popupContent.querySelector('.serie9-popup__results-button');
       const zoomButton = popupContent.querySelector('.serie9-popup__zoom-button');
+      resultsButton?.addEventListener('click', () => {
+        setResultsLocal(local);
+      });
       zoomButton?.addEventListener('click', () => {
         mapInstance.flyTo({
           center: local.coordinates,
@@ -718,7 +724,7 @@ const MapContainer = ({
   };
 
   return (
-    <div className="map-premium-wrapper serie9-map">
+    <div className={`map-premium-wrapper serie9-map${resultsLocal ? ' is-results-open' : ''}`}>
       <div className="serie9-map__toolbar" aria-label="Controles del mapa de locales">
         <div className="serie9-map__toolbar-main">
           <div className="serie9-map__stats">
@@ -866,6 +872,8 @@ const MapContainer = ({
       {(isLoading || error) && (
         <div className="serie9-map__status">{isLoading ? 'Cargando coordenadas...' : error}</div>
       )}
+
+      <ResultsSheet local={resultsLocal} onClose={() => setResultsLocal(null)} />
     </div>
   );
 };
