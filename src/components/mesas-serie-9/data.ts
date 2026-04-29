@@ -182,24 +182,21 @@ export const aggregateRows = (rows: CsvRow[]): { locals: VotingLocal[]; stats: M
 
 export const buildFeatureCollection = (
   locals: VotingLocal[],
-  selectedPrecisions: Set<PrecisionCoord>,
 ): PointFeatureCollection => ({
   type: 'FeatureCollection',
-  features: locals
-    .filter((local) => selectedPrecisions.has(local.precisionCoord))
-    .map((local) => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: local.coordinates,
-      },
-      properties: {
-        id: local.id,
-        precisionCoord: local.precisionCoord,
-        mesaCount: local.mesas.length,
-        nombreLocal: local.nombreLocal,
-      },
-    })),
+  features: locals.map((local) => ({
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: local.coordinates,
+    },
+    properties: {
+      id: local.id,
+      precisionCoord: local.precisionCoord,
+      mesaCount: local.mesas.length,
+      nombreLocal: local.nombreLocal,
+    },
+  })),
 });
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('es-PE').format(value);

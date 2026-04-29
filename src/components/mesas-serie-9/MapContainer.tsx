@@ -7,7 +7,6 @@ import {
   LAYER_ID,
   OUTLINE_LAYER_ID,
   PRECISION_META,
-  PRECISION_OPTIONS,
   SELECTED_HALO_LAYER_ID,
   SELECTED_SOURCE_ID,
   SOURCE_ID,
@@ -27,7 +26,6 @@ import type {
   MapContainerProps,
   MapStats,
   PointFeatureCollection,
-  PrecisionCoord,
   VotingLocal,
 } from './types';
 
@@ -57,9 +55,6 @@ const MapContainer = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isMapReady, setIsMapReady] = useState(false);
   const [basemapMode, setBasemapMode] = useState<BasemapMode>('croquis');
-  const [selectedPrecisions, setSelectedPrecisions] = useState<Set<PrecisionCoord>>(
-    () => new Set(PRECISION_OPTIONS),
-  );
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedProvincia, setSelectedProvincia] = useState('');
   const [selectedDistrito, setSelectedDistrito] = useState('');
@@ -107,17 +102,11 @@ const MapContainer = ({
     [locals, selectedDistrito, selectedProvincia, selectedRegion],
   );
 
-  const featureCollection = useMemo(
-    () => buildFeatureCollection(filteredLocals, selectedPrecisions),
-    [filteredLocals, selectedPrecisions],
-  );
+  const featureCollection = useMemo(() => buildFeatureCollection(filteredLocals), [filteredLocals]);
 
   const visibleMesaCount = useMemo(
-    () =>
-      filteredLocals
-        .filter((local) => selectedPrecisions.has(local.precisionCoord))
-        .reduce((total, local) => total + local.mesas.length, 0),
-    [filteredLocals, selectedPrecisions],
+    () => filteredLocals.reduce((total, local) => total + local.mesas.length, 0),
+    [filteredLocals],
   );
 
   useEffect(() => {
@@ -525,18 +514,6 @@ const MapContainer = ({
     map.current.setStyle(getBasemapStyle(basemapMode));
   }, [basemapMode]);
 
-  const togglePrecision = (precision: PrecisionCoord) => {
-    setSelectedPrecisions((current) => {
-      const next = new Set(current);
-      if (next.has(precision)) {
-        next.delete(precision);
-      } else {
-        next.add(precision);
-      }
-      return next.size > 0 ? next : current;
-    });
-  };
-
   const handleRegionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const nextRegion = event.target.value;
     setSelectedRegion(nextRegion);
@@ -552,6 +529,12 @@ const MapContainer = ({
 
   const handleDistritoChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDistrito(event.target.value);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedRegion('');
+    setSelectedProvincia('');
+    setSelectedDistrito('');
   };
 
   const handleMapWheelCapture = (event: React.WheelEvent<HTMLDivElement>) => {
@@ -614,9 +597,14 @@ const MapContainer = ({
                 </button>
               </div>
 
-              <button type="button" className="serie9-map__reset" onClick={handleResetView}>
-                Restablecer
-              </button>
+              <div className="serie9-map__actions">
+                <button type="button" className="serie9-map__ghost-action" onClick={handleResetFilters}>
+                  Restablecer filtros
+                </button>
+                <button type="button" className="serie9-map__reset" onClick={handleResetView}>
+                  Restablecer
+                </button>
+              </div>
             </div>
 
             <div className="serie9-map__geo-filters" aria-label="Filtrar por ubicacion">
@@ -663,20 +651,6 @@ const MapContainer = ({
                   ))}
                 </select>
               </label>
-            </div>
-
-            <div className="serie9-map__filters" aria-label="Filtrar por precisión">
-              {PRECISION_OPTIONS.map((precision) => (
-                <button
-                  key={precision}
-                  type="button"
-                  className={selectedPrecisions.has(precision) ? 'is-active' : ''}
-                  onClick={() => togglePrecision(precision)}
-                >
-                  <span style={{ backgroundColor: PRECISION_META[precision].color }} />
-                  {PRECISION_META[precision].label}
-                </button>
-              ))}
             </div>
           </div>
         </div>
