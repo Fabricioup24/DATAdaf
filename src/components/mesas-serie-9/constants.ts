@@ -24,7 +24,7 @@ export const FIXED_PARTIES: Array<{
     key: 'juntos_por_el_peru',
     label: 'Juntos por el Peru',
     column: 'presidencial_juntos_por_el_peru',
-    color: '#2563eb',
+    color: '#16a34a',
   },
   {
     key: 'fuerza_popular',
@@ -36,31 +36,31 @@ export const FIXED_PARTIES: Array<{
     key: 'partido_del_buen_gobierno',
     label: 'Buen Gobierno',
     column: 'presidencial_partido_del_buen_gobierno',
-    color: '#16a34a',
+    color: '#f2f597',
   },
   {
     key: 'renovacion_popular',
     label: 'Renovacion Popular',
     column: 'presidencial_renovacion_popular',
-    color: '#7c3aed',
+    color: '#049fde',
   },
   {
     key: 'partido_civico_obras',
     label: 'Partido Civico Obras',
     column: 'presidencial_partido_civico_obras',
-    color: '#b45309',
+    color: '#2b6011',
   },
   {
     key: 'ahora_nacion',
     label: 'Ahora Nacion',
     column: 'presidencial_ahora_nacion_an',
-    color: '#db2777',
+    color: '#dc2626',
   },
   {
     key: 'partido_pais_para_todos',
     label: 'Pais para Todos',
     column: 'presidencial_partido_pais_para_todos',
-    color: '#0f766e',
+    color: '#f5c302',
   },
 ];
 
