@@ -10,6 +10,64 @@ type ResultsSheetProps = {
 };
 
 const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
+const normalizeStatus = (value?: string) =>
+  (value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+
+const isMesaContabilizada = (estadoActa?: string) => normalizeStatus(estadoActa) === 'contabilizada';
+
+const getMesaSecondaryLabel = (estadoActa?: string, participacionPct?: string) => {
+  if (estadoActa && !isMesaContabilizada(estadoActa)) {
+    return estadoActa;
+  }
+
+  if (participacionPct) {
+    return `Participacion ${participacionPct}%`;
+  }
+
+  return estadoActa || 'Abrir detalle';
+};
+
+const getMesaPrimaryLabel = (estadoActa: string | undefined, summary: VoteSummary) => {
+  if (estadoActa && !isMesaContabilizada(estadoActa)) {
+    return estadoActa;
+  }
+
+  return summary.topParty?.label ?? 'Sin partido destacado';
+};
+
+const MesaPendingState = ({
+  mesaNumero,
+  estadoActa,
+}: {
+  mesaNumero: string;
+  estadoActa?: string;
+}) => (
+  <section className="serie9-results__panel serie9-results__panel--mesa-detail serie9-results__panel--status">
+    <div className="serie9-results__panel-head">
+      <div>
+        <p className="serie9-results__eyebrow">Mesa {mesaNumero}</p>
+        <h4 className="serie9-results__panel-title">{estadoActa || 'Acta pendiente'}</h4>
+      </div>
+      <div className="serie9-results__leader is-empty">
+        <strong>Sin comparativo disponible</strong>
+        <span>La mesa aun no esta contabilizada</span>
+      </div>
+    </div>
+
+    <div className="serie9-results__status-note">
+      <strong>Resultados pendientes</strong>
+      <p>
+        Esta mesa figura como <strong>{estadoActa || 'pendiente'}</strong>. Hasta que el acta pase a
+        estado <strong>Contabilizada</strong>, no mostramos ranking, barras ni calculos de votos para
+        evitar interpretaciones equivocadas.
+      </p>
+    </div>
+  </section>
+);
 
 const VoteComparison = ({
   summary,
@@ -259,37 +317,36 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
                   onClick={() => setActiveMesa(mesa.numeroMesa)}
                 >
                   <span className="serie9-results-sheet__mesa-card-label">Mesa {mesa.numeroMesa}</span>
-                  <strong>
-                    {mesa.results.topParty?.label ?? 'Sin partido destacado'}
-                  </strong>
+                  <strong>{getMesaPrimaryLabel(mesa.estadoActa, mesa.results)}</strong>
                   <small>
-                    {mesa.results.topParty
+                    {mesa.estadoActa && !isMesaContabilizada(mesa.estadoActa)
+                      ? 'Acta pendiente de contabilizacion'
+                      : mesa.results.topParty
                       ? `${formatNumber(mesa.results.topParty.votes)} votos · ${formatPercentage(
                           mesa.results.topParty.share,
                         )}`
                       : mesa.estadoActa || 'Sin votos validos'}
                   </small>
-                  <em>
-                    {mesa.participacionPct
-                      ? `Participacion ${mesa.participacionPct}%`
-                      : mesa.estadoActa || 'Abrir detalle'}
-                  </em>
+                  <em>{getMesaSecondaryLabel(mesa.estadoActa, mesa.participacionPct)}</em>
                 </button>
               ))}
             </div>
 
             {selectedMesa ? (
-              <VoteComparison
-                key={selectedMesa.numeroMesa}
-                summary={selectedMesa.results}
-                title={`Mesa ${selectedMesa.numeroMesa}`}
-                className="serie9-results__panel--mesa-detail"
-                subtitle={
-                  selectedMesa.participacionPct
-                    ? `Participacion ${selectedMesa.participacionPct}%`
-                    : selectedMesa.estadoActa || undefined
-                }
-              />
+              isMesaContabilizada(selectedMesa.estadoActa) ? (
+                <VoteComparison
+                  key={selectedMesa.numeroMesa}
+                  summary={selectedMesa.results}
+                  title={`Mesa ${selectedMesa.numeroMesa}`}
+                  className="serie9-results__panel--mesa-detail"
+                  subtitle={getMesaSecondaryLabel(selectedMesa.estadoActa, selectedMesa.participacionPct)}
+                />
+              ) : (
+                <MesaPendingState
+                  mesaNumero={selectedMesa.numeroMesa}
+                  estadoActa={selectedMesa.estadoActa}
+                />
+              )
             ) : null}
           </section>
         </div>
