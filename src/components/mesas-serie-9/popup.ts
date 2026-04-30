@@ -1,4 +1,3 @@
-import { PRECISION_META } from './constants';
 import type { VotingLocal } from './types';
 
 type PopupActions = {
@@ -25,7 +24,6 @@ export const createPopupContent = (
   const root = document.createElement('div');
   root.className = 'serie9-popup';
 
-  const precision = PRECISION_META[local.precisionCoord];
   const header = document.createElement('div');
   header.className = 'serie9-popup__header';
 
@@ -33,11 +31,6 @@ export const createPopupContent = (
   title.textContent = local.nombreLocal || `Local ${local.numeroLocal}`;
   header.appendChild(title);
 
-  const badge = document.createElement('span');
-  badge.className = 'serie9-popup__badge';
-  badge.style.backgroundColor = precision.color;
-  badge.textContent = precision.label;
-  header.appendChild(badge);
   root.appendChild(header);
 
   const location = document.createElement('p');

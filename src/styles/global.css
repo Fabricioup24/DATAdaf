@@ -5462,18 +5462,6 @@ header {
     letter-spacing: -0.01em;
 }
 
-.serie9-popup__badge {
-    flex: none;
-    border-radius: 999px;
-    color: #ffffff;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.58rem;
-    font-weight: 950;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-transform: uppercase;
-}
-
 .serie9-popup__location {
     margin: 0.45rem 0 0.85rem;
     color: rgba(18, 18, 18, 0.58);
