@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import MapToolbar from './MapToolbar';
@@ -26,6 +26,8 @@ const MapContainer = ({
   maxBounds = DEFAULT_MAX_BOUNDS,
 }: MapContainerProps) => {
   const [resultsLocal, setResultsLocal] = useState<VotingLocal | null>(null);
+  const [isBasemapMenuOpen, setIsBasemapMenuOpen] = useState(false);
+  const basemapControlRef = useRef<HTMLDivElement | null>(null);
   const focusLocalOnMapRef = useRef<(local: VotingLocal, shouldZoom?: boolean) => void>(() => undefined);
   const { error, isLoading, locals, localsByIdRef, stats } = useSerie9Data({ dataUrl });
 
@@ -47,6 +49,35 @@ const MapContainer = ({
     });
 
   focusLocalOnMapRef.current = focusLocalOnMap;
+
+  useEffect(() => {
+    if (!isBasemapMenuOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (
+        basemapControlRef.current &&
+        target instanceof Node &&
+        !basemapControlRef.current.contains(target)
+      ) {
+        setIsBasemapMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsBasemapMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isBasemapMenuOpen]);
 
   return (
     <div className="map-premium-wrapper serie9-map">
@@ -88,23 +119,23 @@ const MapContainer = ({
       <div className="serie9-map__canvas-shell">
         <div
           className="serie9-map__floating-basemap"
+          ref={basemapControlRef}
           role="group"
           aria-label="Cambiar capa base del mapa"
         >
           <button
             type="button"
             className="serie9-map__floating-basemap-button"
-            onClick={() =>
-              filters.setBasemapMode((currentMode) =>
-                currentMode === 'croquis' ? 'satelite' : 'croquis',
-              )
-            }
-            aria-label={`Cambiar a vista ${filters.basemapMode === 'croquis' ? 'satelite' : 'croquis'}`}
+            onClick={() => setIsBasemapMenuOpen((currentValue) => !currentValue)}
+            aria-expanded={isBasemapMenuOpen}
+            aria-controls="serie9-basemap-menu"
+            aria-label="Abrir selector de capas del mapa"
           >
-            <span className="serie9-map__floating-basemap-icon" aria-hidden="true">
-              <span />
-              <span />
-              <span />
+            <span
+              className={`serie9-map__floating-basemap-preview serie9-map__floating-basemap-preview--${filters.basemapMode}`}
+              aria-hidden="true"
+            >
+              <span className="serie9-map__floating-basemap-preview-grid" />
             </span>
             <span className="serie9-map__floating-basemap-copy">
               <strong>Capas</strong>
@@ -112,13 +143,19 @@ const MapContainer = ({
             </span>
           </button>
 
-          <div className="serie9-map__floating-basemap-menu">
+          <div
+            id="serie9-basemap-menu"
+            className={`serie9-map__floating-basemap-menu${isBasemapMenuOpen ? ' is-open' : ''}`}
+          >
             {(['croquis', 'satelite'] as BasemapMode[]).map((mode) => (
               <button
                 key={mode}
                 type="button"
                 className={filters.basemapMode === mode ? 'is-active' : ''}
-                onClick={() => filters.setBasemapMode(mode)}
+                onClick={() => {
+                  filters.setBasemapMode(mode);
+                  setIsBasemapMenuOpen(false);
+                }}
               >
                 {BASEMAP_LABELS[mode]}
               </button>

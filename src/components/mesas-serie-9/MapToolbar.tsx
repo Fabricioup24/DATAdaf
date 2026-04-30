@@ -3,6 +3,13 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { formatNumber } from './data';
 import type { MesaSearchResult, VoteSummary } from './types';
 
+const PARTY_SLOT_LABELS = [
+  'Selecciona un partido',
+  'Selecciona un segundo partido',
+  'Selecciona un tercer partido',
+  'Selecciona un cuarto partido',
+];
+
 type MapToolbarProps = {
   handleDistritoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleMesaInputBlur: () => void;
@@ -219,7 +226,7 @@ const MapToolbar = ({
                 <option value="">
                   {presidentialPartyOptions.length === 0
                     ? 'Sin votos visibles'
-                    : `Selecciona${slotIndex === 0 ? ' un partido' : ` partido ${slotIndex + 1}`}`}
+                    : PARTY_SLOT_LABELS[slotIndex] ?? 'Selecciona un partido'}
                 </option>
                 {presidentialPartyOptions.map((party) => (
                   <option
