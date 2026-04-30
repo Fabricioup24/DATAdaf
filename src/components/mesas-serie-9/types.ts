@@ -26,6 +26,13 @@ export interface PartyResult {
   share: number;
 }
 
+export interface PartyAnalysisSummary extends PartyResult {
+  color: string;
+  localWins: number;
+  logoPath: string | null;
+  mesaWins: number;
+}
+
 export interface VoteExtras {
   blancoVotes: number;
   blancoShare: number;
@@ -37,6 +44,7 @@ export interface VoteSummary {
   parties: FixedPartyResult[];
   allParties: PartyResult[];
   rankedParties: FixedPartyResult[];
+  rankedAllParties: PartyResult[];
   otrosVotes: number;
   otrosShare: number;
   extras: VoteExtras;
@@ -51,6 +59,11 @@ export interface VoteSummary {
   secondParty: FixedPartyResult | null;
   marginVotes: number;
   marginShare: number;
+  topOverallParty: PartyResult | null;
+  secondOverallParty: PartyResult | null;
+  overallMarginVotes: number;
+  overallMarginShare: number;
+  winningPartyKey: string | null;
 }
 
 export interface VotingMesa {
@@ -110,6 +123,7 @@ export type MesaSearchResult = {
 
 export type CsvRow = Record<string, string>;
 export type BasemapMode = 'croquis' | 'satelite';
+export type AnalysisMode = 'winner' | 'compare';
 
 export type LenisController = {
   start?: () => void;

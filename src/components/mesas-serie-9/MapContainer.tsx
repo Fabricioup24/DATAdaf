@@ -39,6 +39,8 @@ const MapContainer = ({
 
   const { focusLocalOnMap, handleResetView, mapContainerRef } =
     useSerie9Map({
+      analysisMode: filters.analysisMode,
+      analysisPartyKeys: filters.visibleAnalysisPartyKeys,
       basemapMode: filters.basemapMode,
       featureCollection: filters.featureCollection,
       initialCenter,
@@ -82,20 +84,28 @@ const MapContainer = ({
   return (
     <div className="map-premium-wrapper serie9-map">
       <MapToolbar
+        analysisLocalCount={filters.analysisLocalCount}
+        analysisMode={filters.analysisMode}
+        analysisMesaCount={filters.analysisMesaCount}
+        analysisPresidentialSummary={filters.analysisPresidentialSummary}
+        comparePartyResults={filters.comparePartyResults}
+        comparePartySelection={filters.comparePartySelection}
         distritoOptions={filters.distritoOptions}
+        handleAnalysisModeChange={filters.handleAnalysisModeChange}
+        handleComparePartyChange={filters.handleComparePartyChange}
         handleDistritoChange={filters.handleDistritoChange}
         handleMesaInputBlur={filters.handleMesaInputBlur}
         handleMesaInputChange={filters.handleMesaInputChange}
         handleMesaInputFocus={filters.handleMesaInputFocus}
         handleMesaSubmit={filters.handleMesaSubmit}
         handleMesaSuggestionSelect={filters.handleMesaSuggestionSelect}
-        handlePartyChange={filters.handlePartyChange}
         handleProvinciaChange={filters.handleProvinciaChange}
         handleRegionChange={filters.handleRegionChange}
         handleResetFilters={filters.handleResetFilters}
         handleResetView={handleResetView}
         handleUrbanRuralChange={filters.handleUrbanRuralChange}
         handleUrbanSubtypeChange={filters.handleUrbanSubtypeChange}
+        handleWinnerPartyChange={filters.handleWinnerPartyChange}
         isLoadingStats={!stats}
         localCount={filters.featureCollection.features.length}
         mesaError={filters.mesaError}
@@ -106,14 +116,14 @@ const MapContainer = ({
         provinciaOptions={filters.provinciaOptions}
         regionOptions={filters.regionOptions}
         selectedDistrito={filters.selectedDistrito}
-        selectedPartyKeys={filters.selectedPartyKeys}
-        selectedPartyResults={filters.selectedPartyResults}
         selectedProvincia={filters.selectedProvincia}
         selectedRegion={filters.selectedRegion}
         selectedUrbanRural={filters.selectedUrbanRural}
         selectedUrbanSubtype={filters.selectedUrbanSubtype}
+        selectedWinnerPartyKey={filters.selectedWinnerPartyKey}
+        visibleWinningPartyCount={filters.visibleWinningPartyCount}
         visibleMesaCount={filters.visibleMesaCount}
-        visiblePresidentialSummary={filters.visiblePresidentialSummary}
+        winnerPartyResult={filters.winnerPartyResult}
       />
 
       <div className="serie9-map__canvas-shell">

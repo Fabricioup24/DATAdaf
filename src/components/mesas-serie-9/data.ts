@@ -6,6 +6,7 @@ import {
   PRESIDENTIAL_IMPUGNADO_COLUMN,
   PRESIDENTIAL_NULO_COLUMN,
 } from './constants';
+import { getPartyMetaByColumn } from './partyCatalog';
 import type {
   CsvRow,
   FixedPartyKey,
@@ -211,8 +212,8 @@ const sumVoteAccumulator = (target: VoteAccumulator, source: VoteAccumulator) =>
 };
 
 const formatPartyLabelFromColumn = (column: string): string => {
-  const fixedParty = FIXED_PARTIES.find((party) => party.column === column);
-  if (fixedParty) return fixedParty.label;
+  const partyMeta = getPartyMetaByColumn(column);
+  if (partyMeta) return partyMeta.label;
 
   return column
     .replace(/^presidencial_/, '')
@@ -252,6 +253,13 @@ const finalizeVoteAccumulator = (
     };
   });
 
+  const rankedAllParties = [...allParties]
+    .filter((party) => party.votes > 0)
+    .sort((first, second) => {
+      if (second.votes !== first.votes) return second.votes - first.votes;
+      return first.label.localeCompare(second.label, 'es');
+    });
+
   const rankedParties = [...parties]
     .filter((party) => party.votes > 0)
     .sort((first, second) => {
@@ -261,15 +269,26 @@ const finalizeVoteAccumulator = (
 
   const topParty = rankedParties[0] ?? null;
   const secondParty = rankedParties[1] ?? null;
+  const topOverallParty = rankedAllParties[0] ?? null;
+  const secondOverallParty = rankedAllParties[1] ?? null;
   const marginVotes =
     topParty && secondParty ? topParty.votes - secondParty.votes : topParty?.votes ?? 0;
   const marginShare =
     topParty && secondParty ? Math.max(0, topParty.share - secondParty.share) : topParty?.share ?? 0;
+  const overallMarginVotes =
+    topOverallParty && secondOverallParty
+      ? topOverallParty.votes - secondOverallParty.votes
+      : topOverallParty?.votes ?? 0;
+  const overallMarginShare =
+    topOverallParty && secondOverallParty
+      ? Math.max(0, topOverallParty.share - secondOverallParty.share)
+      : topOverallParty?.share ?? 0;
 
   return {
     parties,
     allParties,
     rankedParties,
+    rankedAllParties,
     otrosVotes: accumulator.otrosVotes,
     otrosShare: validVotes > 0 ? (accumulator.otrosVotes / validVotes) * 100 : 0,
     extras: {
@@ -289,6 +308,11 @@ const finalizeVoteAccumulator = (
     secondParty,
     marginVotes,
     marginShare,
+    topOverallParty,
+    secondOverallParty,
+    overallMarginVotes,
+    overallMarginShare,
+    winningPartyKey: topOverallParty?.key ?? null,
   };
 };
 
@@ -466,6 +490,7 @@ export const buildFeatureCollection = (
       precisionCoord: local.precisionCoord,
       mesaCount: local.mesas.length,
       nombreLocal: local.nombreLocal,
+      winnerPartyKey: local.results.winningPartyKey,
     },
   })),
 });

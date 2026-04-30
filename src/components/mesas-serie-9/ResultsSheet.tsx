@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { FIXED_PARTY_COLOR_MAP } from './constants';
+import { PARTY_COLOR_MAP } from './constants';
 import { formatNumber } from './data';
 import type { VoteSummary, VotingLocal } from './types';
 
@@ -37,7 +37,7 @@ const getMesaPrimaryLabel = (estadoActa: string | undefined, summary: VoteSummar
     return estadoActa;
   }
 
-  return summary.topParty?.label ?? 'Sin partido destacado';
+  return summary.topOverallParty?.label ?? 'Sin partido destacado';
 };
 
 const MesaPendingState = ({
@@ -83,11 +83,13 @@ const VoteComparison = ({
 }) => {
   const sortedParties = useMemo(
     () =>
-      [...summary.parties].sort((first, second) => {
+      [...summary.allParties]
+        .filter((party) => party.votes > 0)
+        .sort((first, second) => {
         if (second.votes !== first.votes) return second.votes - first.votes;
         return first.label.localeCompare(second.label, 'es');
       }),
-    [summary.parties],
+    [summary.allParties],
   );
 
   const maxVotes = useMemo(
@@ -102,10 +104,10 @@ const VoteComparison = ({
           <p className="serie9-results__eyebrow">{title}</p>
           {subtitle ? <h4 className="serie9-results__panel-title">{subtitle}</h4> : null}
         </div>
-        {summary.topParty ? (
+        {summary.topOverallParty ? (
           <div className="serie9-results__leader">
-            <strong>{summary.topParty.label}</strong>
-            <span>{formatPercentage(summary.topParty.share)}</span>
+            <strong>{summary.topOverallParty.label}</strong>
+            <span>{formatPercentage(summary.topOverallParty.share)}</span>
           </div>
         ) : (
           <div className="serie9-results__leader is-empty">
@@ -116,30 +118,32 @@ const VoteComparison = ({
       </div>
 
       <div className="serie9-results__rank-summary">
-        {summary.topParty ? (
+        {summary.topOverallParty ? (
           <div className="serie9-results__rank-card">
             <span>1er lugar</span>
-            <strong>{summary.topParty.label}</strong>
+            <strong>{summary.topOverallParty.label}</strong>
             <small>
-              {formatNumber(summary.topParty.votes)} votos · {formatPercentage(summary.topParty.share)}
+              {formatNumber(summary.topOverallParty.votes)} votos ·{' '}
+              {formatPercentage(summary.topOverallParty.share)}
             </small>
           </div>
         ) : null}
 
-        {summary.secondParty ? (
+        {summary.secondOverallParty ? (
           <div className="serie9-results__rank-card">
             <span>2do lugar</span>
-            <strong>{summary.secondParty.label}</strong>
+            <strong>{summary.secondOverallParty.label}</strong>
             <small>
-              {formatNumber(summary.secondParty.votes)} votos · {formatPercentage(summary.secondParty.share)}
+              {formatNumber(summary.secondOverallParty.votes)} votos ·{' '}
+              {formatPercentage(summary.secondOverallParty.share)}
             </small>
           </div>
         ) : null}
 
         <div className="serie9-results__rank-card">
           <span>Margen</span>
-          <strong>{formatNumber(summary.marginVotes)} votos</strong>
-          <small>{formatPercentage(summary.marginShare)}</small>
+          <strong>{formatNumber(summary.overallMarginVotes)} votos</strong>
+          <small>{formatPercentage(summary.overallMarginShare)}</small>
         </div>
       </div>
 
@@ -157,7 +161,7 @@ const VoteComparison = ({
                 className="serie9-results__bar-fill"
                 style={{
                   width: `${(party.votes / maxVotes) * 100}%`,
-                  backgroundColor: FIXED_PARTY_COLOR_MAP[party.key],
+                  backgroundColor: PARTY_COLOR_MAP[party.key] ?? '#94a3b8',
                 }}
               />
             </div>
@@ -296,7 +300,7 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
           <VoteComparison
             summary={local.results}
             title="Comparativo del local"
-            subtitle="Siete partidos editoriales, Otros residual y extras de Blanco/Nulo"
+            subtitle="Todos los partidos presidenciales contabilizados, mas extras de Blanco/Nulo"
           />
 
           <section className="serie9-results-sheet__mesa-block">
@@ -327,9 +331,9 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
                   <small>
                     {mesa.estadoActa && !isMesaContabilizada(mesa.estadoActa)
                       ? 'Acta pendiente de contabilizacion'
-                      : mesa.results.topParty
-                      ? `${formatNumber(mesa.results.topParty.votes)} votos · ${formatPercentage(
-                          mesa.results.topParty.share,
+                      : mesa.results.topOverallParty
+                      ? `${formatNumber(mesa.results.topOverallParty.votes)} votos · ${formatPercentage(
+                          mesa.results.topOverallParty.share,
                         )}`
                       : mesa.estadoActa || 'Sin votos validos'}
                   </small>

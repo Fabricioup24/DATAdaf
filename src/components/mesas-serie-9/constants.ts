@@ -5,6 +5,7 @@ import type {
   PointFeatureCollection,
   PrecisionCoord,
 } from './types';
+import { PRESIDENTIAL_PARTY_CATALOG } from './partyCatalog';
 
 export const SOURCE_ID = 'serie9-locales-source';
 export const LAYER_ID = 'serie9-locales-layer';
@@ -70,6 +71,30 @@ export const FIXED_PARTY_COLOR_MAP: Record<FixedPartyKey, string> = FIXED_PARTIE
     return accumulator;
   },
   {} as Record<FixedPartyKey, string>,
+);
+
+export const PARTY_COLOR_MAP: Record<string, string> = PRESIDENTIAL_PARTY_CATALOG.reduce(
+  (accumulator, party) => {
+    accumulator[party.column] = party.color;
+    return accumulator;
+  },
+  {} as Record<string, string>,
+);
+
+export const PARTY_LOGO_MAP: Record<string, string | null> = PRESIDENTIAL_PARTY_CATALOG.reduce(
+  (accumulator, party) => {
+    accumulator[party.column] = party.logoPath;
+    return accumulator;
+  },
+  {} as Record<string, string | null>,
+);
+
+export const PARTY_ORDER_INDEX_MAP: Record<string, number> = PRESIDENTIAL_PARTY_CATALOG.reduce(
+  (accumulator, party, index) => {
+    accumulator[party.column] = index;
+    return accumulator;
+  },
+  {} as Record<string, number>,
 );
 
 export const PRESIDENTIAL_BLANCO_COLUMN = 'presidencial_votos_blanco';

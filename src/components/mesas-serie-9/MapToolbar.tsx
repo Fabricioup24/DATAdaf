@@ -1,29 +1,37 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import type { CSSProperties, ChangeEvent, FormEvent } from 'react';
 
+import PartyLogo from './PartyLogo';
 import { formatNumber } from './data';
-import type { MesaSearchResult, VoteSummary } from './types';
-
-const PARTY_SLOT_LABELS = [
-  'Selecciona un partido',
-  'Selecciona un segundo partido',
-  'Selecciona un tercer partido',
-  'Selecciona un cuarto partido',
-];
+import type {
+  AnalysisMode,
+  MesaSearchResult,
+  PartyAnalysisSummary,
+  VoteSummary,
+} from './types';
 
 type MapToolbarProps = {
+  analysisLocalCount: number;
+  analysisMode: AnalysisMode;
+  analysisMesaCount: number;
+  analysisPresidentialSummary: VoteSummary | null;
+  comparePartyResults: PartyAnalysisSummary[];
+  comparePartySelection: string[];
+  distritoOptions: string[];
+  handleAnalysisModeChange: (mode: AnalysisMode) => void;
+  handleComparePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleDistritoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleMesaInputBlur: () => void;
   handleMesaInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleMesaInputFocus: () => void;
   handleMesaSubmit: (event: FormEvent<HTMLFormElement>) => void;
   handleMesaSuggestionSelect: (numeroMesa: string) => void;
-  handlePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleProvinciaChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleRegionChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleResetFilters: () => void;
   handleResetView: () => void;
   handleUrbanRuralChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleUrbanSubtypeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handleWinnerPartyChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   isLoadingStats: boolean;
   localCount: number;
   mesaError: string | null;
@@ -31,35 +39,61 @@ type MapToolbarProps = {
   mesaSuggestions: MesaSearchResult[];
   mesaSuggestionsOpen: boolean;
   presidentialPartyOptions: Array<{ key: string; label: string }>;
+  provinciaOptions: string[];
+  regionOptions: string[];
   selectedDistrito: string;
-  selectedPartyKeys: string[];
-  selectedPartyResults: Array<VoteSummary['allParties'][number]>;
   selectedProvincia: string;
   selectedRegion: string;
   selectedUrbanRural: string;
   selectedUrbanSubtype: string;
-  provinciaOptions: string[];
-  regionOptions: string[];
-  distritoOptions: string[];
+  selectedWinnerPartyKey: string;
   visibleMesaCount: number;
-  visiblePresidentialSummary: VoteSummary | null;
+  visibleWinningPartyCount: number;
+  winnerPartyResult: PartyAnalysisSummary | null;
 };
 
+const ComparePartyCard = ({
+  party,
+}: {
+  party: PartyAnalysisSummary;
+}) => (
+  <article className="serie9-map__party-card" style={{ '--party-color': party.color } as CSSProperties}>
+    <div className="serie9-map__party-card-header">
+      <PartyLogo color={party.color} label={party.label} logoPath={party.logoPath} size="sm" />
+      <div className="serie9-map__party-card-copy">
+        <p>{party.label}</p>
+        <small>{formatNumber(party.localWins)} locales ganados</small>
+      </div>
+    </div>
+    <strong>{formatNumber(party.votes)}</strong>
+    <span>{party.share.toFixed(1)}% de votos validos</span>
+    <em>{formatNumber(party.mesaWins)} mesas lideradas</em>
+  </article>
+);
+
 const MapToolbar = ({
+  analysisMode,
+  analysisLocalCount,
+  analysisMesaCount,
+  analysisPresidentialSummary,
+  comparePartyResults,
+  comparePartySelection,
   distritoOptions,
+  handleAnalysisModeChange,
+  handleComparePartyChange,
   handleDistritoChange,
   handleMesaInputBlur,
   handleMesaInputChange,
   handleMesaInputFocus,
   handleMesaSubmit,
   handleMesaSuggestionSelect,
-  handlePartyChange,
   handleProvinciaChange,
   handleRegionChange,
   handleResetFilters,
   handleResetView,
   handleUrbanRuralChange,
   handleUrbanSubtypeChange,
+  handleWinnerPartyChange,
   isLoadingStats,
   localCount,
   mesaError,
@@ -70,14 +104,14 @@ const MapToolbar = ({
   provinciaOptions,
   regionOptions,
   selectedDistrito,
-  selectedPartyKeys,
-  selectedPartyResults,
   selectedProvincia,
   selectedRegion,
   selectedUrbanRural,
   selectedUrbanSubtype,
+  selectedWinnerPartyKey,
   visibleMesaCount,
-  visiblePresidentialSummary,
+  visibleWinningPartyCount,
+  winnerPartyResult,
 }: MapToolbarProps) => (
   <div className="serie9-map__toolbar" aria-label="Controles del mapa de locales">
     <div className="serie9-map__toolbar-main">
@@ -213,36 +247,6 @@ const MapToolbar = ({
             </label>
           ) : null}
         </div>
-
-        <div className="serie9-map__presidential-selectors">
-          {selectedPartyKeys.map((selectedPartyKey, slotIndex) => (
-            <label key={`party-slot-${slotIndex + 1}`} className="serie9-map__select-field">
-              <span>{`Partido ${slotIndex + 1}`}</span>
-              <select
-                value={selectedPartyKey}
-                onChange={(event) => handlePartyChange(slotIndex, event)}
-                disabled={presidentialPartyOptions.length === 0}
-              >
-                <option value="">
-                  {presidentialPartyOptions.length === 0
-                    ? 'Sin votos visibles'
-                    : PARTY_SLOT_LABELS[slotIndex] ?? 'Selecciona un partido'}
-                </option>
-                {presidentialPartyOptions.map((party) => (
-                  <option
-                    key={party.key}
-                    value={party.key}
-                    disabled={
-                      selectedPartyKeys.includes(party.key) && selectedPartyKey !== party.key
-                    }
-                  >
-                    {party.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
       </div>
 
       <div className="serie9-map__column serie9-map__column--summary">
@@ -250,6 +254,86 @@ const MapToolbar = ({
           className="serie9-map__presidential-panel"
           aria-label="Resultados presidenciales del subconjunto visible"
         >
+          <div className="serie9-map__analysis-mode">
+            <p className="serie9-map__analysis-label">Modo de análisis</p>
+            <div className="serie9-map__analysis-toggle" role="tablist" aria-label="Modo de análisis">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={analysisMode === 'winner'}
+                className={analysisMode === 'winner' ? 'is-active' : ''}
+                onClick={() => handleAnalysisModeChange('winner')}
+              >
+                Ganador
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={analysisMode === 'compare'}
+                className={analysisMode === 'compare' ? 'is-active' : ''}
+                onClick={() => handleAnalysisModeChange('compare')}
+              >
+                Comparar
+              </button>
+            </div>
+          </div>
+
+          {analysisMode === 'winner' ? (
+            <div className="serie9-map__analysis-picker">
+              <label className="serie9-map__select-field">
+                <span>¿Cómo le fue al partido de?</span>
+                <select
+                  value={selectedWinnerPartyKey}
+                  onChange={handleWinnerPartyChange}
+                  disabled={presidentialPartyOptions.length === 0}
+                >
+                  <option value="">
+                    {presidentialPartyOptions.length === 0
+                      ? 'Sin votos visibles'
+                      : 'Selecciona un partido'}
+                  </option>
+                  {presidentialPartyOptions.map((party) => (
+                    <option key={party.key} value={party.key}>
+                      {party.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          ) : (
+            <div className="serie9-map__analysis-compare-grid">
+              {comparePartySelection.map((selectedKey, slotIndex) => (
+                <label key={`compare-party-${slotIndex + 1}`} className="serie9-map__select-field">
+                  <span>{slotIndex === 0 ? 'Partido 1' : 'Partido 2'}</span>
+                  <select
+                    value={selectedKey}
+                    onChange={(event) => handleComparePartyChange(slotIndex, event)}
+                    disabled={presidentialPartyOptions.length === 0}
+                  >
+                    <option value="">
+                      {presidentialPartyOptions.length === 0
+                        ? 'Sin votos visibles'
+                        : slotIndex === 0
+                        ? 'Selecciona un partido'
+                        : 'Selecciona un segundo partido'}
+                    </option>
+                    {presidentialPartyOptions.map((party) => (
+                      <option
+                        key={party.key}
+                        value={party.key}
+                        disabled={
+                          comparePartySelection.includes(party.key) && selectedKey !== party.key
+                        }
+                      >
+                        {party.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          )}
+
           <div className="serie9-map__presidential-head">
             <div>
               <p className="serie9-map__presidential-eyebrow">Solo Presidencia</p>
@@ -258,87 +342,106 @@ const MapToolbar = ({
               </h3>
             </div>
             <span className="serie9-map__presidential-note">
-              {formatNumber(localCount)} locales y {formatNumber(visibleMesaCount)} mesas segun los
-              filtros activos. El ausentismo se calcula solo con{' '}
-              {formatNumber(visiblePresidentialSummary?.countedMesas ?? 0)} mesas contabilizadas.
+              {formatNumber(analysisLocalCount)} locales y {formatNumber(analysisMesaCount)} mesas
+              segun los filtros activos. El ausentismo se calcula solo con{' '}
+              {formatNumber(analysisPresidentialSummary?.countedMesas ?? 0)} mesas contabilizadas.
             </span>
           </div>
 
           <div className="serie9-map__presidential-metrics">
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.emittedVotes)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.emittedVotes)
                   : '0'}
               </strong>
               <span>Emitidos</span>
             </div>
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.validVotes)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.validVotes)
                   : '0'}
               </strong>
               <span>Validos</span>
             </div>
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.extras.blancoVotes)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.extras.blancoVotes)
                   : '0'}
               </strong>
               <span>Blancos</span>
             </div>
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.eligibleVoters)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.eligibleVoters)
                   : '0'}
               </strong>
               <span>Habiles</span>
             </div>
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.abstentionVotes)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.abstentionVotes)
                   : '0'}
               </strong>
               <span>Ausentes</span>
               <small>
-                {visiblePresidentialSummary
-                  ? `${visiblePresidentialSummary.abstentionShare.toFixed(1)}% de habiles`
+                {analysisPresidentialSummary
+                  ? `${analysisPresidentialSummary.abstentionShare.toFixed(1)}% de habiles`
                   : '0.0% de habiles'}
               </small>
             </div>
             <div className="serie9-map__stat-card">
               <strong>
-                {visiblePresidentialSummary
-                  ? formatNumber(visiblePresidentialSummary.pendingMesas)
+                {analysisPresidentialSummary
+                  ? formatNumber(analysisPresidentialSummary.pendingMesas)
                   : '0'}
               </strong>
               <span>Enviadas al JEE</span>
             </div>
           </div>
 
-          <div className="serie9-map__presidential-party-cards">
-            {selectedPartyResults.map((partyResult) => (
-              <article key={partyResult.key} className="serie9-map__party-card">
-                <p>{partyResult.label}</p>
-                <strong>{formatNumber(partyResult.votes)}</strong>
-                <span>{partyResult.share.toFixed(1)}% de votos validos</span>
-              </article>
-            ))}
-          </div>
+          {analysisMode === 'winner' ? (
+            <div className="serie9-map__presidential-party-cards">
+              {winnerPartyResult ? (
+                <ComparePartyCard party={winnerPartyResult} />
+              ) : (
+                <p className="serie9-map__presidential-hint">
+                  Selecciona un partido para pintar los locales donde fue ganador y revisar su desempeño dentro del subconjunto visible.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="serie9-map__presidential-party-cards">
+              {comparePartyResults.length > 0 ? (
+                comparePartyResults.map((party) => (
+                  <ComparePartyCard key={party.key} party={party} />
+                ))
+              ) : (
+                <p className="serie9-map__presidential-hint">
+                  Selecciona dos partidos para comparar en que locales gano cada uno dentro del subconjunto visible.
+                </p>
+              )}
+            </div>
+          )}
 
-          {selectedPartyResults.length === 0 ? (
+          {(winnerPartyResult || comparePartyResults.length > 0) && (
             <p className="serie9-map__presidential-hint">
-              Selecciona entre uno y cuatro partidos para calcular sus votos dentro del subconjunto visible.
+              {formatNumber(visibleWinningPartyCount)} locales del subconjunto visible tienen como ganador a
+              {' '}
+              {analysisMode === 'winner'
+                ? 'ese partido'
+                : 'uno de los partidos seleccionados'}
+              .
             </p>
-          ) : null}
+          )}
 
-          {visiblePresidentialSummary?.pendingMesas ? (
+          {analysisPresidentialSummary?.pendingMesas ? (
             <p className="serie9-map__presidential-hint">
-              {formatNumber(visiblePresidentialSummary.pendingMesas)} mesas enviadas al JEE no se
+              {formatNumber(analysisPresidentialSummary.pendingMesas)} mesas enviadas al JEE no se
               incluyen en el calculo de ausentismo ni en los totales presidenciales.
             </p>
           ) : null}

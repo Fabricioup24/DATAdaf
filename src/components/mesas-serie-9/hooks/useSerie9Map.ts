@@ -9,6 +9,7 @@ import maplibregl from 'maplibre-gl';
 import {
   LAYER_ID,
   OUTLINE_LAYER_ID,
+  PARTY_COLOR_MAP,
   SELECTED_HALO_LAYER_ID,
   SELECTED_SOURCE_ID,
   SOURCE_ID,
@@ -16,9 +17,17 @@ import {
 } from '../constants';
 import { createSelectedFeatureCollection } from '../data';
 import { createPopupContent } from '../popup';
-import type { BasemapMode, GeoJsonSourceLike, PointFeatureCollection, VotingLocal } from '../types';
+import type {
+  AnalysisMode,
+  BasemapMode,
+  GeoJsonSourceLike,
+  PointFeatureCollection,
+  VotingLocal,
+} from '../types';
 
 type UseSerie9MapParams = {
+  analysisMode: AnalysisMode;
+  analysisPartyKeys: string[];
   basemapMode: BasemapMode;
   featureCollection: PointFeatureCollection;
   initialCenter: [number, number];
@@ -36,6 +45,8 @@ type UseSerie9MapResult = {
 };
 
 export const useSerie9Map = ({
+  analysisMode,
+  analysisPartyKeys,
   basemapMode,
   featureCollection,
   initialCenter,
@@ -61,6 +72,57 @@ export const useSerie9Map = ({
   useEffect(() => {
     featureCollectionRef.current = featureCollection;
   }, [featureCollection]);
+
+  const syncAnalysisPaint = (mapInstance: maplibregl.Map) => {
+    if (!isMapOperational(mapInstance) || !mapInstance.getLayer(LAYER_ID)) return;
+
+    const defaultColor = '#a8792a';
+    const mutedColor = '#d7dde8';
+    const mutedOpacity = 0.42;
+
+    if (analysisMode === 'winner' && analysisPartyKeys[0]) {
+      const winningKey = analysisPartyKeys[0];
+      mapInstance.setPaintProperty(LAYER_ID, 'circle-color', [
+        'case',
+        ['==', ['get', 'winnerPartyKey'], winningKey],
+        PARTY_COLOR_MAP[winningKey] ?? defaultColor,
+        mutedColor,
+      ]);
+      mapInstance.setPaintProperty(LAYER_ID, 'circle-opacity', [
+        'case',
+        ['==', ['get', 'winnerPartyKey'], winningKey],
+        0.94,
+        mutedOpacity,
+      ]);
+      return;
+    }
+
+    if (analysisMode === 'compare' && analysisPartyKeys.length >= 2) {
+      const [firstKey, secondKey] = analysisPartyKeys;
+      mapInstance.setPaintProperty(LAYER_ID, 'circle-color', [
+        'case',
+        ['==', ['get', 'winnerPartyKey'], firstKey],
+        PARTY_COLOR_MAP[firstKey] ?? defaultColor,
+        ['==', ['get', 'winnerPartyKey'], secondKey],
+        PARTY_COLOR_MAP[secondKey] ?? defaultColor,
+        mutedColor,
+      ]);
+      mapInstance.setPaintProperty(LAYER_ID, 'circle-opacity', [
+        'case',
+        [
+          'any',
+          ['==', ['get', 'winnerPartyKey'], firstKey],
+          ['==', ['get', 'winnerPartyKey'], secondKey],
+        ],
+        0.94,
+        mutedOpacity,
+      ]);
+      return;
+    }
+
+    mapInstance.setPaintProperty(LAYER_ID, 'circle-color', defaultColor);
+    mapInstance.setPaintProperty(LAYER_ID, 'circle-opacity', 0.88);
+  };
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -192,6 +254,8 @@ export const useSerie9Map = ({
       if (selectedLocalRef.current) {
         startSelectionPulse(mapInstance);
       }
+
+      syncAnalysisPaint(mapInstance);
     };
 
     const handleMouseEnter = () => {
@@ -408,6 +472,7 @@ export const useSerie9Map = ({
       activePopupRef.current?.remove();
       activePopupRef.current = null;
       source.setData(featureCollection);
+      syncAnalysisPaint(mapRef.current);
     }
   }, [featureCollection, isMapReady]);
 
@@ -417,6 +482,11 @@ export const useSerie9Map = ({
     activePopupRef.current = null;
     mapRef.current.setStyle(getBasemapStyle(basemapMode));
   }, [basemapMode]);
+
+  useEffect(() => {
+    if (!isMapReady || !mapRef.current) return;
+    syncAnalysisPaint(mapRef.current);
+  }, [analysisMode, analysisPartyKeys, isMapReady]);
 
   const handleResetView = () => {
     if (!mapRef.current) return;

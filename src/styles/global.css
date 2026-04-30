@@ -4918,6 +4918,55 @@ header {
     box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
 }
 
+.serie9-map__analysis-mode {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.serie9-map__analysis-label {
+    margin: 0;
+    color: rgba(18, 18, 18, 0.54);
+    font-size: 0.62rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.serie9-map__analysis-toggle {
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 0.45rem;
+}
+
+.serie9-map__analysis-toggle button {
+    min-height: 2.15rem;
+    padding: 0.42rem 0.9rem;
+    border: 1px solid rgba(18, 18, 18, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: rgba(18, 18, 18, 0.66);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.serie9-map__analysis-toggle button.is-active {
+    background: #121212;
+    color: #ffffff;
+}
+
+.serie9-map__analysis-picker,
+.serie9-map__analysis-compare-grid {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.serie9-map__analysis-compare-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .serie9-map__presidential-head {
     display: flex;
     align-items: flex-start;
@@ -4969,17 +5018,32 @@ header {
 
 .serie9-map__presidential-party-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
 }
 
 .serie9-map__party-card {
     display: grid;
-    gap: 0.2rem;
+    gap: 0.28rem;
     min-width: 0;
     padding: 0.82rem 0.9rem 0.88rem;
-    border: 1px solid rgba(18, 18, 18, 0.08);
+    border: 1px solid color-mix(in srgb, var(--party-color, rgba(18, 18, 18, 0.08)) 24%, white);
     border-radius: 0.9rem;
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.serie9-map__party-card-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.08rem;
+}
+
+.serie9-map__party-card-copy {
+    display: grid;
+    gap: 0.12rem;
+    min-width: 0;
 }
 
 .serie9-map__party-card p {
@@ -4998,11 +5062,53 @@ header {
     line-height: 1.1;
 }
 
+.serie9-map__party-card small,
 .serie9-map__party-card span {
     color: rgba(18, 18, 18, 0.62);
     font-size: 0.7rem;
     font-weight: 800;
     line-height: 1.35;
+}
+
+.serie9-map__party-card em {
+    margin-top: 0.12rem;
+    color: rgba(18, 18, 18, 0.5);
+    font-size: 0.66rem;
+    font-style: normal;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+.serie9-map__party-logo {
+    display: inline-grid;
+    place-items: center;
+    width: var(--party-logo-size, 54px);
+    height: var(--party-logo-size, 54px);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--party-logo-color, #cbd5e1) 30%, white);
+    border-radius: 0.95rem;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.serie9-map__party-logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #ffffff;
+}
+
+.serie9-map__party-logo-fallback {
+    display: inline-grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--party-logo-color, #64748b);
+    font-size: 0.8rem;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .serie9-map__legend {
@@ -5958,6 +6064,10 @@ header {
         padding: 0.82rem 0.9rem 0.9rem;
     }
 
+    .serie9-map__analysis-compare-grid {
+        grid-template-columns: 1fr;
+    }
+
     .serie9-map__presidential-metrics {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.55rem;
@@ -6094,7 +6204,7 @@ header {
 
     .serie9-map__geo-filters,
     .serie9-map__presidential-panel,
-    .serie9-map__presidential-selectors,
+    .serie9-map__analysis-compare-grid,
     .serie9-map__presidential-metrics,
     .serie9-map__presidential-party-cards {
         width: 100%;

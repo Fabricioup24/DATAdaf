@@ -10,9 +10,16 @@ import {
   type SetStateAction,
 } from 'react';
 
-import { FIXED_PARTIES } from '../constants';
+import { PARTY_ORDER_INDEX_MAP } from '../constants';
 import { aggregateVoteSummaries, buildFeatureCollection } from '../data';
-import type { MesaSearchResult, VoteSummary, VotingLocal } from '../types';
+import { getPartyMetaByColumn } from '../partyCatalog';
+import type {
+  AnalysisMode,
+  MesaSearchResult,
+  PartyAnalysisSummary,
+  VoteSummary,
+  VotingLocal,
+} from '../types';
 
 type UseSerie9FiltersParams = {
   locals: VotingLocal[];
@@ -21,22 +28,30 @@ type UseSerie9FiltersParams = {
 };
 
 type UseSerie9FiltersResult = {
+  analysisLocalCount: number;
+  analysisMode: AnalysisMode;
+  analysisMesaCount: number;
+  analysisPresidentialSummary: VoteSummary | null;
   basemapMode: 'croquis' | 'satelite';
+  comparePartyResults: PartyAnalysisSummary[];
+  comparePartySelection: string[];
   distritoOptions: string[];
   featureCollection: ReturnType<typeof buildFeatureCollection>;
   filteredLocals: VotingLocal[];
+  handleAnalysisModeChange: (mode: AnalysisMode) => void;
+  handleComparePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleDistritoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleMesaInputBlur: () => void;
   handleMesaInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleMesaInputFocus: () => void;
   handleMesaSubmit: (event: FormEvent<HTMLFormElement>) => void;
   handleMesaSuggestionSelect: (numeroMesa: string) => void;
-  handlePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleProvinciaChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleRegionChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleResetFilters: () => void;
   handleUrbanRuralChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleUrbanSubtypeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handleWinnerPartyChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   mesaError: string | null;
   mesaQuery: string;
   mesaSuggestions: MesaSearchResult[];
@@ -45,15 +60,16 @@ type UseSerie9FiltersResult = {
   provinciaOptions: string[];
   regionOptions: string[];
   selectedDistrito: string;
-  selectedPartyKeys: string[];
-  selectedPartyResults: Array<VoteSummary['allParties'][number]>;
   selectedProvincia: string;
   selectedRegion: string;
   selectedUrbanRural: string;
   selectedUrbanSubtype: string;
+  selectedWinnerPartyKey: string;
   setBasemapMode: Dispatch<SetStateAction<'croquis' | 'satelite'>>;
+  visibleAnalysisPartyKeys: string[];
   visibleMesaCount: number;
-  visiblePresidentialSummary: VoteSummary | null;
+  visibleWinningPartyCount: number;
+  winnerPartyResult: PartyAnalysisSummary | null;
 };
 
 export const useSerie9Filters = ({
@@ -73,7 +89,9 @@ export const useSerie9Filters = ({
   const [mesaQuery, setMesaQuery] = useState('');
   const [mesaSuggestionsOpen, setMesaSuggestionsOpen] = useState(false);
   const [mesaError, setMesaError] = useState<string | null>(null);
-  const [selectedPartyKeys, setSelectedPartyKeys] = useState(['', '', '', '']);
+  const [analysisMode, setAnalysisMode] = useState<AnalysisMode>('winner');
+  const [selectedWinnerPartyKey, setSelectedWinnerPartyKey] = useState('');
+  const [comparePartySelection, setComparePartySelection] = useState(['', '']);
 
   const mesaSearchIndex = useMemo(
     () =>
@@ -187,26 +205,98 @@ export const useSerie9Filters = ({
       .filter((party) => party.votes > 0)
       .map((party) => ({ key: party.key, label: party.label }))
       .sort((first, second) => {
-        const firstFixedIndex = FIXED_PARTIES.findIndex((party) => party.column === first.key);
-        const secondFixedIndex = FIXED_PARTIES.findIndex((party) => party.column === second.key);
+        const firstIndex = PARTY_ORDER_INDEX_MAP[first.key];
+        const secondIndex = PARTY_ORDER_INDEX_MAP[second.key];
 
-        if (firstFixedIndex >= 0 && secondFixedIndex >= 0) {
-          return firstFixedIndex - secondFixedIndex;
+        if (firstIndex !== undefined && secondIndex !== undefined) {
+          return firstIndex - secondIndex;
         }
-        if (firstFixedIndex >= 0) return -1;
-        if (secondFixedIndex >= 0) return 1;
+        if (firstIndex !== undefined) return -1;
+        if (secondIndex !== undefined) return 1;
         return first.label.localeCompare(second.label, 'es');
       });
   }, [visiblePresidentialSummary]);
 
-  const selectedPartyResults = useMemo(
-    () =>
-      selectedPartyKeys.flatMap((selectedKey) => {
+  const buildAnalysisSummary = (party: VoteSummary['allParties'][number]): PartyAnalysisSummary => {
+    const partyMeta = getPartyMetaByColumn(party.key);
+    const localWins = filteredLocals.filter(
+      (local) => local.results.winningPartyKey === party.key,
+    ).length;
+    const mesaWins = filteredLocals.reduce(
+      (total, local) =>
+        total +
+        local.mesas.filter((mesa) => mesa.results.winningPartyKey === party.key).length,
+      0,
+    );
+
+    return {
+      ...party,
+      color: partyMeta.color,
+      localWins,
+      logoPath: partyMeta.logoPath,
+      mesaWins,
+    };
+  };
+
+  const visibleAnalysisPartyKeys = useMemo(() => {
+    if (analysisMode === 'winner') {
+      return selectedWinnerPartyKey ? [selectedWinnerPartyKey] : [];
+    }
+    return comparePartySelection.filter(Boolean);
+  }, [analysisMode, comparePartySelection, selectedWinnerPartyKey]);
+
+  const analysisLocals = useMemo(() => {
+    if (analysisMode === 'winner' && selectedWinnerPartyKey) {
+      return filteredLocals.filter(
+        (local) => local.results.winningPartyKey === selectedWinnerPartyKey,
+      );
+    }
+
+    if (analysisMode === 'compare' && comparePartySelection.every(Boolean)) {
+      return filteredLocals.filter((local) =>
+        comparePartySelection.includes(local.results.winningPartyKey ?? ''),
+      );
+    }
+
+    return filteredLocals;
+  }, [analysisMode, comparePartySelection, filteredLocals, selectedWinnerPartyKey]);
+
+  const analysisPresidentialSummary = useMemo(
+    () => aggregateVoteSummaries(analysisLocals.map((local) => local.results)),
+    [analysisLocals],
+  );
+
+  const analysisMesaCount = useMemo(
+    () => analysisLocals.reduce((total, local) => total + local.mesas.length, 0),
+    [analysisLocals],
+  );
+
+  const winnerPartyResult = useMemo(() => {
+    if (!selectedWinnerPartyKey) return null;
+    const party = analysisPresidentialSummary?.allParties.find(
+      (item) => item.key === selectedWinnerPartyKey,
+    );
+    return party ? buildAnalysisSummary(party) : null;
+  }, [analysisPresidentialSummary, filteredLocals, selectedWinnerPartyKey]);
+
+  const comparePartyResults = useMemo(
+    () => {
+      if (!comparePartySelection.every(Boolean)) return [];
+
+      return comparePartySelection.flatMap((selectedKey) => {
         if (!selectedKey) return [];
-        const party = visiblePresidentialSummary?.allParties.find((item) => item.key === selectedKey);
-        return party ? [party] : [];
-      }),
-    [selectedPartyKeys, visiblePresidentialSummary],
+        const party = analysisPresidentialSummary?.allParties.find(
+          (item) => item.key === selectedKey,
+        );
+        return party ? [buildAnalysisSummary(party)] : [];
+      });
+    },
+    [analysisPresidentialSummary, comparePartySelection, filteredLocals],
+  );
+
+  const visibleWinningPartyCount = useMemo(
+    () => analysisLocals.length,
+    [analysisLocals],
   );
 
   const featureCollection = useMemo(() => buildFeatureCollection(filteredLocals), [filteredLocals]);
@@ -226,7 +316,10 @@ export const useSerie9Filters = ({
 
   useEffect(() => {
     const availableKeys = new Set(presidentialPartyOptions.map((party) => party.key));
-    setSelectedPartyKeys((currentKeys) =>
+    setSelectedWinnerPartyKey((currentKey) =>
+      currentKey && !availableKeys.has(currentKey) ? '' : currentKey,
+    );
+    setComparePartySelection((currentKeys) =>
       currentKeys.map((key) => (key && !availableKeys.has(key) ? '' : key)),
     );
   }, [presidentialPartyOptions]);
@@ -277,15 +370,24 @@ export const useSerie9Filters = ({
     setSelectedDistrito('');
     setSelectedUrbanRural('');
     setSelectedUrbanSubtype('');
-    setSelectedPartyKeys(['', '', '', '']);
+    setSelectedWinnerPartyKey('');
+    setComparePartySelection(['', '']);
     setMesaQuery('');
     setMesaError(null);
     setMesaSuggestionsOpen(false);
   };
 
-  const handlePartyChange = (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => {
+  const handleAnalysisModeChange = (mode: AnalysisMode) => {
+    setAnalysisMode(mode);
+  };
+
+  const handleWinnerPartyChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWinnerPartyKey(event.target.value);
+  };
+
+  const handleComparePartyChange = (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => {
     const nextValue = event.target.value;
-    setSelectedPartyKeys((currentKeys) =>
+    setComparePartySelection((currentKeys) =>
       currentKeys.map((currentValue, currentIndex) => {
         if (currentIndex === slotIndex) return nextValue;
         if (nextValue && currentValue === nextValue) return '';
@@ -389,22 +491,30 @@ export const useSerie9Filters = ({
   };
 
   return {
+    analysisLocalCount: analysisLocals.length,
+    analysisMode,
+    analysisMesaCount,
+    analysisPresidentialSummary,
     basemapMode,
+    comparePartyResults,
+    comparePartySelection,
     distritoOptions,
     featureCollection,
     filteredLocals,
+    handleAnalysisModeChange,
+    handleComparePartyChange,
     handleDistritoChange,
     handleMesaInputBlur,
     handleMesaInputChange,
     handleMesaInputFocus,
     handleMesaSubmit,
     handleMesaSuggestionSelect,
-    handlePartyChange,
     handleProvinciaChange,
     handleRegionChange,
     handleResetFilters,
     handleUrbanRuralChange,
     handleUrbanSubtypeChange,
+    handleWinnerPartyChange,
     mesaError,
     mesaQuery,
     mesaSuggestions,
@@ -413,14 +523,15 @@ export const useSerie9Filters = ({
     provinciaOptions,
     regionOptions,
     selectedDistrito,
-    selectedPartyKeys,
-    selectedPartyResults,
     selectedProvincia,
     selectedRegion,
     selectedUrbanRural,
     selectedUrbanSubtype,
+    selectedWinnerPartyKey,
     setBasemapMode,
+    visibleAnalysisPartyKeys,
     visibleMesaCount,
-    visiblePresidentialSummary,
+    visibleWinningPartyCount,
+    winnerPartyResult,
   };
 };
