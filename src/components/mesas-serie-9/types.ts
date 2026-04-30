@@ -99,6 +99,15 @@ export interface MapContainerProps {
   maxBounds?: [[number, number], [number, number]];
 }
 
+export type MesaSearchResult = {
+  numeroMesa: string;
+  localId: string;
+  localNombre: string;
+  region: string;
+  provincia: string;
+  distrito: string;
+};
+
 export type CsvRow = Record<string, string>;
 export type BasemapMode = 'croquis' | 'satelite';
 
