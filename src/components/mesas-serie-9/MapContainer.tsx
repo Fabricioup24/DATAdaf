@@ -8,15 +8,18 @@ import { useSerie9Filters } from './hooks/useSerie9Filters';
 import { useSerie9Map } from './hooks/useSerie9Map';
 import type { MapContainerProps, VotingLocal } from './types';
 
+const DEFAULT_INITIAL_CENTER: [number, number] = [-75.0152, -9.19];
+const DEFAULT_MAX_BOUNDS: [[number, number], [number, number]] = [
+  [-97.0, -29.0],
+  [-53.0, 12.0],
+];
+
 const MapContainer = ({
   dataUrl = '/pdfs/01_base_4703_mesas_serie9_clasificacion_oficial_urbano_rural.csv',
-  initialCenter = [-75.0152, -9.19],
+  initialCenter = DEFAULT_INITIAL_CENTER,
   initialZoom = 5,
   height = '860px',
-  maxBounds = [
-    [-97.0, -29.0],
-    [-53.0, 12.0],
-  ],
+  maxBounds = DEFAULT_MAX_BOUNDS,
 }: MapContainerProps) => {
   const [resultsLocal, setResultsLocal] = useState<VotingLocal | null>(null);
   const focusLocalOnMapRef = useRef<(local: VotingLocal, shouldZoom?: boolean) => void>(() => undefined);
@@ -28,7 +31,7 @@ const MapContainer = ({
     onLocalSearchMatch: (local, shouldZoom) => focusLocalOnMapRef.current(local, shouldZoom),
   });
 
-  const { focusLocalOnMap, handleMapWheelCapture, handleResetView, mapContainerRef } =
+  const { focusLocalOnMap, handleResetView, mapContainerRef } =
     useSerie9Map({
       basemapMode: filters.basemapMode,
       featureCollection: filters.featureCollection,
@@ -42,7 +45,7 @@ const MapContainer = ({
   focusLocalOnMapRef.current = focusLocalOnMap;
 
   return (
-    <div className={`map-premium-wrapper serie9-map${resultsLocal ? ' is-results-open' : ''}`}>
+    <div className="map-premium-wrapper serie9-map">
       <MapToolbar
         basemapMode={filters.basemapMode}
         distritoOptions={filters.distritoOptions}
@@ -88,7 +91,6 @@ const MapContainer = ({
         style={{ height }}
         className="serie9-map__canvas w-full bg-gray-100"
         data-lenis-prevent
-        onWheelCapture={handleMapWheelCapture}
       />
 
       {(isLoading || error) && (

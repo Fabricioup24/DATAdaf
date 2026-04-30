@@ -3,7 +3,6 @@ import {
   useRef,
   useState,
   type MutableRefObject,
-  type WheelEvent as ReactWheelEvent,
 } from 'react';
 import maplibregl from 'maplibre-gl';
 
@@ -31,7 +30,6 @@ type UseSerie9MapParams = {
 
 type UseSerie9MapResult = {
   focusLocalOnMap: (local: VotingLocal, shouldZoom?: boolean) => void;
-  handleMapWheelCapture: (event: ReactWheelEvent<HTMLDivElement>) => void;
   handleResetView: () => void;
   isMapReady: boolean;
   mapContainerRef: MutableRefObject<HTMLDivElement | null>;
@@ -57,6 +55,9 @@ export const useSerie9Map = ({
   const focusLocalRef = useRef<(local: VotingLocal, shouldZoom?: boolean) => void>(() => undefined);
   const [isMapReady, setIsMapReady] = useState(false);
 
+  const isMapOperational = (mapInstance: maplibregl.Map | null | undefined) =>
+    !!mapInstance && mapRef.current === mapInstance;
+
   useEffect(() => {
     featureCollectionRef.current = featureCollection;
   }, [featureCollection]);
@@ -72,6 +73,7 @@ export const useSerie9Map = ({
     };
 
     const syncSelectedSource = (mapInstance: maplibregl.Map, local: VotingLocal | null) => {
+      if (!isMapOperational(mapInstance)) return;
       const selectedSource = mapInstance.getSource(SELECTED_SOURCE_ID) as GeoJsonSourceLike;
       if (selectedSource) {
         selectedSource.setData(createSelectedFeatureCollection(local));
@@ -82,7 +84,7 @@ export const useSerie9Map = ({
       stopSelectionPulse();
 
       const animatePulse = (timestamp: number) => {
-        if (!mapInstance.getLayer(SELECTED_HALO_LAYER_ID) || !selectedLocalRef.current) {
+        if (!isMapOperational(mapInstance) || !mapInstance.getLayer(SELECTED_HALO_LAYER_ID) || !selectedLocalRef.current) {
           pulseFrameRef.current = null;
           return;
         }
@@ -115,6 +117,7 @@ export const useSerie9Map = ({
     };
 
     const ensureDataLayers = (mapInstance: maplibregl.Map) => {
+      if (!isMapOperational(mapInstance)) return;
       const source = mapInstance.getSource(SOURCE_ID) as GeoJsonSourceLike;
 
       if (!source) {
@@ -192,10 +195,12 @@ export const useSerie9Map = ({
     };
 
     const handleMouseEnter = () => {
+      if (!isMapOperational(mapInstance)) return;
       mapInstance.getCanvas().style.cursor = 'pointer';
     };
 
     const handleMouseLeave = () => {
+      if (!isMapOperational(mapInstance)) return;
       mapInstance.getCanvas().style.cursor = '';
     };
 
@@ -219,24 +224,21 @@ export const useSerie9Map = ({
     };
 
     const openLocalPopup = (mapInstance: maplibregl.Map, local: VotingLocal) => {
+      if (!isMapOperational(mapInstance)) return;
       activePopupRef.current?.remove();
       setSelectedLocal(mapInstance, local);
 
-      const popupContent = createPopupContent(local);
-      const resultsButton = popupContent.querySelector('.serie9-popup__results-button');
-      const zoomButton = popupContent.querySelector('.serie9-popup__zoom-button');
-
-      resultsButton?.addEventListener('click', () => {
-        onViewResults(local);
-      });
-      zoomButton?.addEventListener('click', () => {
-        mapInstance.flyTo({
-          center: local.coordinates,
-          zoom: Math.max(mapInstance.getZoom(), 15.2),
-          speed: 1.15,
-          curve: 1.42,
-          essential: true,
-        });
+      const popupContent = createPopupContent(local, {
+        onResults: () => onViewResults(local),
+        onZoom: () => {
+          mapInstance.flyTo({
+            center: local.coordinates,
+            zoom: Math.max(mapInstance.getZoom(), 15.2),
+            speed: 1.15,
+            curve: 1.42,
+            essential: true,
+          });
+        },
       });
 
       const popupPlacement = getPopupPlacement(mapInstance, local);
@@ -252,6 +254,7 @@ export const useSerie9Map = ({
 
       popup.on('close', () => {
         activePopupRef.current = null;
+        if (!isMapOperational(mapInstance)) return;
         setSelectedLocal(mapInstance, null);
       });
 
@@ -259,6 +262,7 @@ export const useSerie9Map = ({
     };
 
     const focusLocalOnMap = (local: VotingLocal, shouldZoom = false) => {
+      if (!isMapOperational(mapInstance)) return;
       if (shouldZoom) {
         mapInstance.flyTo({
           center: local.coordinates,
@@ -310,6 +314,7 @@ export const useSerie9Map = ({
     };
 
     const handleStyleReady = () => {
+      if (!isMapOperational(mapInstance)) return;
       ensureDataLayers(mapInstance);
       bindPointInteractions();
 
@@ -338,14 +343,18 @@ export const useSerie9Map = ({
     mapInstance.on('style.load', handleStyleReady);
 
     return () => {
+      setIsMapReady(false);
+      activePopupRef.current?.remove();
+      activePopupRef.current = null;
+      selectedLocalRef.current = null;
+      mapRef.current = null;
       mapInstance.off('load', handleStyleReady);
       mapInstance.off('style.load', handleStyleReady);
       mapInstance.off('mouseenter', LAYER_ID, handleMouseEnter);
       mapInstance.off('mouseleave', LAYER_ID, handleMouseLeave);
       mapInstance.off('click', LAYER_ID, handlePointClick);
-      mapInstance.remove();
       stopSelectionPulse();
-      mapRef.current = null;
+      mapInstance.remove();
       focusLocalRef.current = () => undefined;
     };
   }, [initialCenter, initialZoom, localsByIdRef, maxBounds, onViewResults]);
@@ -409,11 +418,6 @@ export const useSerie9Map = ({
     mapRef.current.setStyle(getBasemapStyle(basemapMode));
   }, [basemapMode]);
 
-  const handleMapWheelCapture = (event: ReactWheelEvent<HTMLDivElement>) => {
-    if (!mapRef.current) return;
-    event.preventDefault();
-  };
-
   const handleResetView = () => {
     if (!mapRef.current) return;
     activePopupRef.current?.remove();
@@ -435,7 +439,6 @@ export const useSerie9Map = ({
 
   return {
     focusLocalOnMap: (local, shouldZoom) => focusLocalRef.current(local, shouldZoom),
-    handleMapWheelCapture,
     handleResetView,
     isMapReady,
     mapContainerRef,

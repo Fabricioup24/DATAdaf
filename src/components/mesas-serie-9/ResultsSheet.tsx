@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { FIXED_PARTY_COLOR_MAP } from './constants';
 import { formatNumber } from './data';
@@ -197,6 +198,11 @@ const VoteComparison = ({
 
 const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
   const [activeMesa, setActiveMesa] = useState<string | null>(null);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
 
   useEffect(() => {
     if (!local) return;
@@ -224,12 +230,12 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
     setActiveMesa(local?.mesas[0]?.numeroMesa ?? null);
   }, [local]);
 
-  if (!local) return null;
+  if (!local || !portalTarget) return null;
 
   const selectedMesa =
     local.mesas.find((mesa) => mesa.numeroMesa === activeMesa) ?? local.mesas[0] ?? null;
 
-  return (
+  return createPortal(
     <div
       className="serie9-results-sheet"
       role="dialog"
@@ -351,7 +357,8 @@ const ResultsSheet = ({ local, onClose }: ResultsSheetProps) => {
           </section>
         </div>
       </div>
-    </div>
+    </div>,
+    portalTarget,
   );
 };
 

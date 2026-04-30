@@ -1,6 +1,11 @@
 import { PRECISION_META } from './constants';
 import type { VotingLocal } from './types';
 
+type PopupActions = {
+  onResults?: () => void;
+  onZoom?: () => void;
+};
+
 const formatUrbanRuralLabel = (value: VotingLocal['clasificacionOficialUrbanoRural']) => {
   if (value === 'urbano') return 'Urbano';
   if (value === 'rural') return 'Rural';
@@ -13,7 +18,10 @@ const formatUrbanSubtypeLabel = (value: VotingLocal['subclasificacionUrbanaOfici
   return '';
 };
 
-export const createPopupContent = (local: VotingLocal): HTMLElement => {
+export const createPopupContent = (
+  local: VotingLocal,
+  { onResults, onZoom }: PopupActions = {},
+): HTMLElement => {
   const root = document.createElement('div');
   root.className = 'serie9-popup';
 
@@ -98,12 +106,18 @@ export const createPopupContent = (local: VotingLocal): HTMLElement => {
   resultsButton.type = 'button';
   resultsButton.className = 'serie9-popup__results-button';
   resultsButton.textContent = 'Ver resultados';
+  if (onResults) {
+    resultsButton.addEventListener('click', onResults);
+  }
   actions.appendChild(resultsButton);
 
   const zoomButton = document.createElement('button');
   zoomButton.type = 'button';
   zoomButton.className = 'serie9-popup__zoom-button';
   zoomButton.textContent = 'Acercar';
+  if (onZoom) {
+    zoomButton.addEventListener('click', onZoom);
+  }
   actions.appendChild(zoomButton);
   root.appendChild(actions);
 
