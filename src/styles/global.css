@@ -361,7 +361,14 @@ header nav ul li a:hover {
     transform: scale(1.1);
 }
 
-section {
+#hero,
+#about,
+#database,
+#visualizacion,
+#services,
+#services-2,
+#testimonios,
+#contact {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -4016,7 +4023,6 @@ section {
 
 img,
 svg,
-canvas,
 video {
     max-width: 100%;
 }
@@ -4690,12 +4696,6 @@ header {
 .map-premium-wrapper:hover {
     transform: translateY(-5px);
     box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.2);
-}
-
-.map-premium-wrapper.is-results-open,
-.map-premium-wrapper.is-results-open:hover {
-    transform: none;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 .serie9-map {
