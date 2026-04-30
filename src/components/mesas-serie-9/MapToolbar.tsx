@@ -1,18 +1,16 @@
-import type { ChangeEvent, Dispatch, FormEvent, SetStateAction } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 
 import { formatNumber } from './data';
 import type { MesaSearchResult, VoteSummary } from './types';
 
 type MapToolbarProps = {
-  basemapMode: 'croquis' | 'satelite';
   handleDistritoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleMesaInputBlur: () => void;
   handleMesaInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleMesaInputFocus: () => void;
   handleMesaSubmit: (event: FormEvent<HTMLFormElement>) => void;
   handleMesaSuggestionSelect: (numeroMesa: string) => void;
-  handlePartyOneChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-  handlePartyTwoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handlePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleProvinciaChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleRegionChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleResetFilters: () => void;
@@ -27,15 +25,12 @@ type MapToolbarProps = {
   mesaSuggestionsOpen: boolean;
   presidentialPartyOptions: Array<{ key: string; label: string }>;
   selectedDistrito: string;
-  selectedPartyOne: string;
-  selectedPartyOneResult: VoteSummary['allParties'][number] | null;
-  selectedPartyTwo: string;
-  selectedPartyTwoResult: VoteSummary['allParties'][number] | null;
+  selectedPartyKeys: string[];
+  selectedPartyResults: Array<VoteSummary['allParties'][number]>;
   selectedProvincia: string;
   selectedRegion: string;
   selectedUrbanRural: string;
   selectedUrbanSubtype: string;
-  setBasemapMode: Dispatch<SetStateAction<'croquis' | 'satelite'>>;
   provinciaOptions: string[];
   regionOptions: string[];
   distritoOptions: string[];
@@ -44,7 +39,6 @@ type MapToolbarProps = {
 };
 
 const MapToolbar = ({
-  basemapMode,
   distritoOptions,
   handleDistritoChange,
   handleMesaInputBlur,
@@ -52,8 +46,7 @@ const MapToolbar = ({
   handleMesaInputFocus,
   handleMesaSubmit,
   handleMesaSuggestionSelect,
-  handlePartyOneChange,
-  handlePartyTwoChange,
+  handlePartyChange,
   handleProvinciaChange,
   handleRegionChange,
   handleResetFilters,
@@ -70,60 +63,40 @@ const MapToolbar = ({
   provinciaOptions,
   regionOptions,
   selectedDistrito,
-  selectedPartyOne,
-  selectedPartyOneResult,
-  selectedPartyTwo,
-  selectedPartyTwoResult,
+  selectedPartyKeys,
+  selectedPartyResults,
   selectedProvincia,
   selectedRegion,
   selectedUrbanRural,
   selectedUrbanSubtype,
-  setBasemapMode,
   visibleMesaCount,
   visiblePresidentialSummary,
 }: MapToolbarProps) => (
   <div className="serie9-map__toolbar" aria-label="Controles del mapa de locales">
     <div className="serie9-map__toolbar-main">
-      <div className="serie9-map__stats">
-        <div className="serie9-map__stat-card">
-          <strong>{isLoadingStats ? '...' : formatNumber(localCount)}</strong>
-          <span>Locales visibles</span>
+      <div className="serie9-map__column serie9-map__column--interactions">
+        <div className="serie9-map__stats">
+          <div className="serie9-map__stat-card">
+            <strong>{isLoadingStats ? '...' : formatNumber(localCount)}</strong>
+            <span>Locales visibles</span>
+          </div>
+          <div className="serie9-map__stat-card">
+            <strong>{isLoadingStats ? '...' : formatNumber(visibleMesaCount)}</strong>
+            <span>Mesas representadas</span>
+          </div>
         </div>
-        <div className="serie9-map__stat-card">
-          <strong>{isLoadingStats ? '...' : formatNumber(visibleMesaCount)}</strong>
-          <span>Mesas representadas</span>
+
+        <div className="serie9-map__actions">
+          <button type="button" className="serie9-map__ghost-action" onClick={handleResetFilters}>
+            Restablecer filtros
+          </button>
+          <button type="button" className="serie9-map__reset" onClick={handleResetView}>
+            Restablecer
+          </button>
         </div>
       </div>
 
-      <div className="serie9-map__controls">
-        <div className="serie9-map__toolbar-top">
-          <div className="serie9-map__basemap" aria-label="Cambiar capa base del mapa">
-            <button
-              type="button"
-              className={basemapMode === 'croquis' ? 'is-active' : ''}
-              onClick={() => setBasemapMode('croquis')}
-            >
-              Croquis
-            </button>
-            <button
-              type="button"
-              className={basemapMode === 'satelite' ? 'is-active' : ''}
-              onClick={() => setBasemapMode('satelite')}
-            >
-              Satelite
-            </button>
-          </div>
-
-          <div className="serie9-map__actions">
-            <button type="button" className="serie9-map__ghost-action" onClick={handleResetFilters}>
-              Restablecer filtros
-            </button>
-            <button type="button" className="serie9-map__reset" onClick={handleResetView}>
-              Restablecer
-            </button>
-          </div>
-        </div>
-
+      <div className="serie9-map__column serie9-map__column--filters">
         <div className="serie9-map__geo-filters" aria-label="Filtrar por ubicacion">
           <form className="serie9-map__mesa-search" onSubmit={handleMesaSubmit}>
             <label className="serie9-map__search-field">
@@ -232,54 +205,40 @@ const MapToolbar = ({
               </select>
             </label>
           ) : null}
+        </div>
 
-          <div className="serie9-map__presidential-selectors">
-            <label className="serie9-map__select-field">
-              <span>Partido 1</span>
+        <div className="serie9-map__presidential-selectors">
+          {selectedPartyKeys.map((selectedPartyKey, slotIndex) => (
+            <label key={`party-slot-${slotIndex + 1}`} className="serie9-map__select-field">
+              <span>{`Partido ${slotIndex + 1}`}</span>
               <select
-                value={selectedPartyOne}
-                onChange={handlePartyOneChange}
+                value={selectedPartyKey}
+                onChange={(event) => handlePartyChange(slotIndex, event)}
                 disabled={presidentialPartyOptions.length === 0}
               >
                 <option value="">
                   {presidentialPartyOptions.length === 0
                     ? 'Sin votos visibles'
-                    : 'Selecciona un partido'}
-                </option>
-                {presidentialPartyOptions.map((party) => (
-                  <option key={party.key} value={party.key}>
-                    {party.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="serie9-map__select-field">
-              <span>Partido 2</span>
-              <select
-                value={selectedPartyTwo}
-                onChange={handlePartyTwoChange}
-                disabled={presidentialPartyOptions.length === 0}
-              >
-                <option value="">
-                  {presidentialPartyOptions.length === 0
-                    ? 'Sin votos visibles'
-                    : 'Selecciona un segundo partido'}
+                    : `Selecciona${slotIndex === 0 ? ' un partido' : ` partido ${slotIndex + 1}`}`}
                 </option>
                 {presidentialPartyOptions.map((party) => (
                   <option
                     key={party.key}
                     value={party.key}
-                    disabled={party.key === selectedPartyOne}
+                    disabled={
+                      selectedPartyKeys.includes(party.key) && selectedPartyKey !== party.key
+                    }
                   >
                     {party.label}
                   </option>
                 ))}
               </select>
             </label>
-          </div>
+          ))}
         </div>
+      </div>
 
+      <div className="serie9-map__column serie9-map__column--summary">
         <section
           className="serie9-map__presidential-panel"
           aria-label="Resultados presidenciales del subconjunto visible"
@@ -355,26 +314,18 @@ const MapToolbar = ({
           </div>
 
           <div className="serie9-map__presidential-party-cards">
-            {selectedPartyOneResult ? (
-              <article className="serie9-map__party-card">
-                <p>{selectedPartyOneResult.label}</p>
-                <strong>{formatNumber(selectedPartyOneResult.votes)}</strong>
-                <span>{selectedPartyOneResult.share.toFixed(1)}% de votos validos</span>
+            {selectedPartyResults.map((partyResult) => (
+              <article key={partyResult.key} className="serie9-map__party-card">
+                <p>{partyResult.label}</p>
+                <strong>{formatNumber(partyResult.votes)}</strong>
+                <span>{partyResult.share.toFixed(1)}% de votos validos</span>
               </article>
-            ) : null}
-
-            {selectedPartyTwoResult ? (
-              <article className="serie9-map__party-card">
-                <p>{selectedPartyTwoResult.label}</p>
-                <strong>{formatNumber(selectedPartyTwoResult.votes)}</strong>
-                <span>{selectedPartyTwoResult.share.toFixed(1)}% de votos validos</span>
-              </article>
-            ) : null}
+            ))}
           </div>
 
-          {!selectedPartyOne && !selectedPartyTwo ? (
+          {selectedPartyResults.length === 0 ? (
             <p className="serie9-map__presidential-hint">
-              Selecciona uno o dos partidos para calcular sus votos dentro del subconjunto visible.
+              Selecciona entre uno y cuatro partidos para calcular sus votos dentro del subconjunto visible.
             </p>
           ) : null}
 

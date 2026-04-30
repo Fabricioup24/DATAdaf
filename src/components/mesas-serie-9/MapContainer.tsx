@@ -6,13 +6,17 @@ import ResultsSheet from './ResultsSheet';
 import { useSerie9Data } from './hooks/useSerie9Data';
 import { useSerie9Filters } from './hooks/useSerie9Filters';
 import { useSerie9Map } from './hooks/useSerie9Map';
-import type { MapContainerProps, VotingLocal } from './types';
+import type { BasemapMode, MapContainerProps, VotingLocal } from './types';
 
 const DEFAULT_INITIAL_CENTER: [number, number] = [-75.0152, -9.19];
 const DEFAULT_MAX_BOUNDS: [[number, number], [number, number]] = [
   [-97.0, -29.0],
   [-53.0, 12.0],
 ];
+const BASEMAP_LABELS: Record<BasemapMode, string> = {
+  croquis: 'Croquis',
+  satelite: 'Satelite',
+};
 
 const MapContainer = ({
   dataUrl = '/pdfs/01_base_4703_mesas_serie9_clasificacion_oficial_urbano_rural.csv',
@@ -47,7 +51,6 @@ const MapContainer = ({
   return (
     <div className="map-premium-wrapper serie9-map">
       <MapToolbar
-        basemapMode={filters.basemapMode}
         distritoOptions={filters.distritoOptions}
         handleDistritoChange={filters.handleDistritoChange}
         handleMesaInputBlur={filters.handleMesaInputBlur}
@@ -55,8 +58,7 @@ const MapContainer = ({
         handleMesaInputFocus={filters.handleMesaInputFocus}
         handleMesaSubmit={filters.handleMesaSubmit}
         handleMesaSuggestionSelect={filters.handleMesaSuggestionSelect}
-        handlePartyOneChange={filters.handlePartyOneChange}
-        handlePartyTwoChange={filters.handlePartyTwoChange}
+        handlePartyChange={filters.handlePartyChange}
         handleProvinciaChange={filters.handleProvinciaChange}
         handleRegionChange={filters.handleRegionChange}
         handleResetFilters={filters.handleResetFilters}
@@ -73,25 +75,64 @@ const MapContainer = ({
         provinciaOptions={filters.provinciaOptions}
         regionOptions={filters.regionOptions}
         selectedDistrito={filters.selectedDistrito}
-        selectedPartyOne={filters.selectedPartyOne}
-        selectedPartyOneResult={filters.selectedPartyOneResult}
-        selectedPartyTwo={filters.selectedPartyTwo}
-        selectedPartyTwoResult={filters.selectedPartyTwoResult}
+        selectedPartyKeys={filters.selectedPartyKeys}
+        selectedPartyResults={filters.selectedPartyResults}
         selectedProvincia={filters.selectedProvincia}
         selectedRegion={filters.selectedRegion}
         selectedUrbanRural={filters.selectedUrbanRural}
         selectedUrbanSubtype={filters.selectedUrbanSubtype}
-        setBasemapMode={filters.setBasemapMode}
         visibleMesaCount={filters.visibleMesaCount}
         visiblePresidentialSummary={filters.visiblePresidentialSummary}
       />
 
-      <div
-        ref={mapContainerRef}
-        style={{ height }}
-        className="serie9-map__canvas w-full bg-gray-100"
-        data-lenis-prevent
-      />
+      <div className="serie9-map__canvas-shell">
+        <div
+          className="serie9-map__floating-basemap"
+          role="group"
+          aria-label="Cambiar capa base del mapa"
+        >
+          <button
+            type="button"
+            className="serie9-map__floating-basemap-button"
+            onClick={() =>
+              filters.setBasemapMode((currentMode) =>
+                currentMode === 'croquis' ? 'satelite' : 'croquis',
+              )
+            }
+            aria-label={`Cambiar a vista ${filters.basemapMode === 'croquis' ? 'satelite' : 'croquis'}`}
+          >
+            <span className="serie9-map__floating-basemap-icon" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+            <span className="serie9-map__floating-basemap-copy">
+              <strong>Capas</strong>
+              <small>{BASEMAP_LABELS[filters.basemapMode]}</small>
+            </span>
+          </button>
+
+          <div className="serie9-map__floating-basemap-menu">
+            {(['croquis', 'satelite'] as BasemapMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={filters.basemapMode === mode ? 'is-active' : ''}
+                onClick={() => filters.setBasemapMode(mode)}
+              >
+                {BASEMAP_LABELS[mode]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div
+          ref={mapContainerRef}
+          style={{ height }}
+          className="serie9-map__canvas w-full bg-gray-100"
+          data-lenis-prevent
+        />
+      </div>
 
       {(isLoading || error) && (
         <div className="serie9-map__status">{isLoading ? 'Cargando coordenadas...' : error}</div>

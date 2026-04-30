@@ -31,8 +31,7 @@ type UseSerie9FiltersResult = {
   handleMesaInputFocus: () => void;
   handleMesaSubmit: (event: FormEvent<HTMLFormElement>) => void;
   handleMesaSuggestionSelect: (numeroMesa: string) => void;
-  handlePartyOneChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-  handlePartyTwoChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  handlePartyChange: (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => void;
   handleProvinciaChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleRegionChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleResetFilters: () => void;
@@ -46,10 +45,8 @@ type UseSerie9FiltersResult = {
   provinciaOptions: string[];
   regionOptions: string[];
   selectedDistrito: string;
-  selectedPartyOne: string;
-  selectedPartyOneResult: VoteSummary['allParties'][number] | null;
-  selectedPartyTwo: string;
-  selectedPartyTwoResult: VoteSummary['allParties'][number] | null;
+  selectedPartyKeys: string[];
+  selectedPartyResults: Array<VoteSummary['allParties'][number]>;
   selectedProvincia: string;
   selectedRegion: string;
   selectedUrbanRural: string;
@@ -76,8 +73,7 @@ export const useSerie9Filters = ({
   const [mesaQuery, setMesaQuery] = useState('');
   const [mesaSuggestionsOpen, setMesaSuggestionsOpen] = useState(false);
   const [mesaError, setMesaError] = useState<string | null>(null);
-  const [selectedPartyOne, setSelectedPartyOne] = useState('');
-  const [selectedPartyTwo, setSelectedPartyTwo] = useState('');
+  const [selectedPartyKeys, setSelectedPartyKeys] = useState(['', '', '', '']);
 
   const mesaSearchIndex = useMemo(
     () =>
@@ -203,22 +199,14 @@ export const useSerie9Filters = ({
       });
   }, [visiblePresidentialSummary]);
 
-  const selectedPartyOneResult = useMemo(
+  const selectedPartyResults = useMemo(
     () =>
-      selectedPartyOne
-        ? visiblePresidentialSummary?.allParties.find((party) => party.key === selectedPartyOne) ??
-          null
-        : null,
-    [selectedPartyOne, visiblePresidentialSummary],
-  );
-
-  const selectedPartyTwoResult = useMemo(
-    () =>
-      selectedPartyTwo
-        ? visiblePresidentialSummary?.allParties.find((party) => party.key === selectedPartyTwo) ??
-          null
-        : null,
-    [selectedPartyTwo, visiblePresidentialSummary],
+      selectedPartyKeys.flatMap((selectedKey) => {
+        if (!selectedKey) return [];
+        const party = visiblePresidentialSummary?.allParties.find((item) => item.key === selectedKey);
+        return party ? [party] : [];
+      }),
+    [selectedPartyKeys, visiblePresidentialSummary],
   );
 
   const featureCollection = useMemo(() => buildFeatureCollection(filteredLocals), [filteredLocals]);
@@ -237,18 +225,11 @@ export const useSerie9Filters = ({
   }, []);
 
   useEffect(() => {
-    if (!selectedPartyOne && !selectedPartyTwo) return;
-
     const availableKeys = new Set(presidentialPartyOptions.map((party) => party.key));
-
-    if (selectedPartyOne && !availableKeys.has(selectedPartyOne)) {
-      setSelectedPartyOne('');
-    }
-
-    if (selectedPartyTwo && !availableKeys.has(selectedPartyTwo)) {
-      setSelectedPartyTwo('');
-    }
-  }, [presidentialPartyOptions, selectedPartyOne, selectedPartyTwo]);
+    setSelectedPartyKeys((currentKeys) =>
+      currentKeys.map((key) => (key && !availableKeys.has(key) ? '' : key)),
+    );
+  }, [presidentialPartyOptions]);
 
   useEffect(() => {
     const pendingLocal = pendingSearchLocalRef.current;
@@ -296,29 +277,21 @@ export const useSerie9Filters = ({
     setSelectedDistrito('');
     setSelectedUrbanRural('');
     setSelectedUrbanSubtype('');
+    setSelectedPartyKeys(['', '', '', '']);
     setMesaQuery('');
     setMesaError(null);
     setMesaSuggestionsOpen(false);
   };
 
-  const handlePartyOneChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handlePartyChange = (slotIndex: number, event: ChangeEvent<HTMLSelectElement>) => {
     const nextValue = event.target.value;
-    setSelectedPartyOne(nextValue);
-
-    if (nextValue && nextValue === selectedPartyTwo) {
-      setSelectedPartyTwo('');
-    }
-  };
-
-  const handlePartyTwoChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextValue = event.target.value;
-
-    if (nextValue && nextValue === selectedPartyOne) {
-      setSelectedPartyTwo('');
-      return;
-    }
-
-    setSelectedPartyTwo(nextValue);
+    setSelectedPartyKeys((currentKeys) =>
+      currentKeys.map((currentValue, currentIndex) => {
+        if (currentIndex === slotIndex) return nextValue;
+        if (nextValue && currentValue === nextValue) return '';
+        return currentValue;
+      }),
+    );
   };
 
   const resolveMesaSearch = (term: string) => {
@@ -426,8 +399,7 @@ export const useSerie9Filters = ({
     handleMesaInputFocus,
     handleMesaSubmit,
     handleMesaSuggestionSelect,
-    handlePartyOneChange,
-    handlePartyTwoChange,
+    handlePartyChange,
     handleProvinciaChange,
     handleRegionChange,
     handleResetFilters,
@@ -441,10 +413,8 @@ export const useSerie9Filters = ({
     provinciaOptions,
     regionOptions,
     selectedDistrito,
-    selectedPartyOne,
-    selectedPartyOneResult,
-    selectedPartyTwo,
-    selectedPartyTwoResult,
+    selectedPartyKeys,
+    selectedPartyResults,
     selectedProvincia,
     selectedRegion,
     selectedUrbanRural,
